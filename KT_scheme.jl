@@ -1,10 +1,11 @@
-using DiffEqBase
+using DifferentialEquations
+using DiffEqBase, DiffEqPDEBase
 
   using Parameters
   using Compat
 
   # Interfaces
-  import DiffEqBase: solve, solve!, init, step!, build_solution, initialize!
+  import DiffEqBase: solve, @def
 
   @compat abstract type PDEProblem <: DEProblem end
   @compat abstract type AbstractConservationLawProblem{MeshType} <: PDEProblem end
@@ -57,15 +58,6 @@ immutable FVIntegrator{T1,tType,uType,dxType,F,G}
   progressbar_name::String
 end
 
-#Macros
-macro def(name, definition)
-    return quote
-        macro $(esc(name))()
-            esc($(Expr(:quote, definition)))
-        end
-    end
-end
-
 @def fv_deterministicpreamble begin
   @unpack N,u,Flux,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,timeseries_steps,progressbar,progress_steps, progressbar_name = integrator
   progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
@@ -93,6 +85,8 @@ end
 
 @def fv_deterministicloop begin
   uold = copy(u)
+  println(uold)
+  throw("end")
   if (typeTIntegration == :FORWARD_EULER)
     rhs!(rhs, uold, N, M,dx, dt, boundary)
     u = uold + dt*rhs
@@ -189,7 +183,7 @@ function minmod(a,b)
   0.5*(sign(a)+sign(b))*min(abs(a),abs(b))
 end
 
-function FV_solve{tType,uType}(integrator::FVIntegrator{FVKTAlgorithm,tType,uType})
+function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVKTAlgorithm,tType,uType,F,G})
   @fv_deterministicpreamble
   @unpack Θ = integrator.alg
 
@@ -290,8 +284,10 @@ function FV_solve{tType,uType}(integrator::FVIntegrator{FVKTAlgorithm,tType,uTyp
   @fv_postamble
 end
 
-function solve{MeshType<:FVMesh,F,F2,F3,F4,F5}(
-  prob::ConservationLawsProblem{{MeshType,F,F2,F3,F4,F5}},
+#function solve{MeshType<:FVMesh,F,F2,F3,F4,F5}(
+function solve(
+  #prob::ConservationLawsProblem{MeshType,F,F2,F3,F4,F5},
+  prob::ConservationLawsProblem,
   alg::AbstractFVAlgorithm;
   timeseries_steps::Int = 100,
   iterations=1000,
@@ -301,6 +297,7 @@ function solve{MeshType<:FVMesh,F,F2,F3,F4,F5}(
   @unpack N,x,dx,bdtype = prob.mesh
   @unpack u0,f,Jf,CFL,tend,numvars,mesh = prob
 
+  typeTIntegration = :TVD_RK2
   numiters = iterations
 
   #Set Initial
@@ -309,8 +306,9 @@ function solve{MeshType<:FVMesh,F,F2,F3,F4,F5}(
 
   #Equation Loop
   u=FV_solve(FVIntegrator{typeof(alg),typeof(tend),
-  typeof(u0),typeof(dx),typeof(f),typeof(Jf)}(alg,N,u,CFL,dx,t,bdtype,numvars,
-  iterations,timeseries_steps,progressbar,progress_steps,progressbar_name))
+  typeof(u0),typeof(dx),typeof(f),typeof(Jf)}(alg,N,u,f,Jf,CFL,dx,t,
+  bdtype,numvars,
+  numiters,typeTIntegration,timeseries_steps,progressbar,progress_steps,progressbar_name))
 
   return(u)
 end

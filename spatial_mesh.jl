@@ -1,16 +1,16 @@
 abstract AbstractFVMesh
 
-type FVMesh{T1,T2,boundaryType} <: AbstractFVMesh
+type FVMesh{T1} <: AbstractFVMesh
   N ::Int
-  x :: Vector{T1}
-  dx :: T2
+  x :: Vector{Float64}
+  dx :: T1
   bdtype :: Symbol
 end
 
-function FVMesh(N,xinit,xend,bdtype)
+function FVMesh(N::Int,xinit::Real,xend::Real,bdtype)
 #Compute lenght (1D Mesh)
 L = xend - xinit
 dx = L/N
 xx = [i*dx+dx/2 for i in 0:(N-1)]
-FEMMesh(N,xx,dx,bdtype)
+FVMesh(N,vec(xx),dx,bdtype)
 end
