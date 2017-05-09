@@ -11,6 +11,6 @@ function FVMesh(N::Int,xinit::Real,xend::Real,bdtype)
 #Compute lenght (1D Mesh)
 L = xend - xinit
 dx = L/N
-xx = [i*dx+dx/2 for i in 0:(N-1)]
+xx = [i*dx+dx/2+xinit for i in 0:(N-1)]
 FVMesh(N,vec(xx),dx,bdtype)
 end

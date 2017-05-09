@@ -15,7 +15,6 @@ end
 
 f(u::Vector) = [u[2];u[2]^2/u[1]+0.5*gr*u[1]^2]
 
-mesh = FVMesh(N,0.0,10.0,:PERIODIC)
 function u0_func(xx)
   N = size(xx,1)
   uinit = zeros(N, 2)
@@ -28,6 +27,13 @@ function u0_func(xx)
   end
   return uinit
 end
+
+mesh = FVMesh(N,-5.0,5.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsProblem(u0,f,Jf,CFL,Tend,mesh)
-@time u = solve(prob, FVKTAlgorithm())
+@time u = solve(prob, FVKTAlgorithm();progressbar=true)
+
+#Plot
+using Plots
+plot(mesh.x, u0[:,1], lab="ho",line=(:dot,2))
+plot!(mesh.x, u[:,1],lab="ESNC h")

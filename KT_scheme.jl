@@ -39,28 +39,31 @@ function FVKTAlgorithm(;Θ=1.0)
 end
 
 
-immutable FVIntegrator{T1,tType,uType,dxType,F,G}
+immutable FVIntegrator{T1,tType,uType,dxType,tendType,F,G}
   alg::T1
   N::Int
   u::uType
   Flux::F
   Jf :: G
-  CFL :: Int
+  CFL :: Real
   dx :: dxType
   t::tType
   bdtype :: Symbol
   M::Int
   numiters::Int
   typeTIntegration::Symbol
+  tend::tendType
   timeseries_steps::Int
   progressbar::Bool
-  progress_steps::Int
   progressbar_name::String
 end
 
 @def fv_deterministicpreamble begin
-  @unpack N,u,Flux,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,timeseries_steps,progressbar,progress_steps, progressbar_name = integrator
+  @unpack N,u,Flux,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,timeseries_steps,
+  progressbar, progressbar_name = integrator
   progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
+  percentage = 0
+  limit = tend/5
 end
 
 @def fv_postamble begin
@@ -77,38 +80,41 @@ end
   #   push!(timeseries,copy(u))
   #   push!(ts,t)
   # end
-  if progressbar && i%progress_steps==0
+  if progressbar && t>limit
+    percentage = percentage + 20
+    limit = limit +tend/5
     Juno.msg(prog,"dt="*string(dt))
-    Juno.progress(prog,i/numiters)
+    Juno.progress(prog,percentage)
+  end
+  if (t>tend)
+    break
   end
 end
 
 @def fv_deterministicloop begin
   uold = copy(u)
-  println(uold)
-  throw("end")
   if (typeTIntegration == :FORWARD_EULER)
-    rhs!(rhs, uold, N, M,dx, dt, boundary)
+    rhs!(rhs, uold, N, M,dx, dt, bdtype)
     u = uold + dt*rhs
   elseif (typeTIntegration == :TVD_RK2)
     #FIRST Step
-    rhs!(rhs, uold, N, M,dx, dt, boundary)
+    rhs!(rhs, uold, N, M,dx, dt, bdtype)
     u = 0.5*(uold + dt*rhs)
     #Second Step
-    rhs!(rhs, uold + dt*rhs, N, M,dx, dt, boundary)
+    rhs!(rhs, uold + dt*rhs, N, M,dx, dt, bdtype)
     u = u + 0.5*(uold + dt*rhs)
   elseif (typeTIntegration == :RK4)
     #FIRST Step
-    rhs!(rhs, uold, N, M,dx, dt, boundary)
+    rhs!(rhs, uold, N, M,dx, dt, bdtype)
     u = old + dt/6*rhs
     #Second Step
-    rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, boundary)
+    rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, bdtype)
     u = u + dt/3*rhs
     #Third Step
-    rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, boundary)
+    rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, bdtype)
     u = u + dt/3*rhs
     #Fourth Step
-    rhs!(rhs, uold+dt*rhs, N, M,dx, dt, boundary)
+    rhs!(rhs, uold+dt*rhs, N, M,dx, dt, bdtype)
     u = u + dt/6 *rhs
   else
     throw("Time integrator not defined...")
@@ -264,19 +270,19 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVKTAlgorithm,tType,
       hh[j,:] = 0.5*(FΦr[j,:]+FΦl[j,:])-0.5*(uold[j+1,:]-uold[j,:])*aa[j]+
       aa[j]*(1-λ*aa[j])/4*(∇u[j+1,:]+∇u[j,:]) + λ*dx/2*(aa[j])^2*∇Ψ[j,:]
     end
-    ∇u_ap = ∇u/dx#(uold[2:N,:]-uold[1:N-1,:])/dx
+    #∇u_ap = ∇u/dx#(uold[2:N,:]-uold[1:N-1,:])/dx
     # Diffusion
     pp = zeros(N-1,M)
-    for j = 1:N-1
-      pp[j,:] = 0.5*(BB(uold[j+1,:])+BB(uold[j,:]))*∇u_ap[j,:]
-    end
+    #for j = 1:N-1
+    #  pp[j,:] = 0.5*(BB(uold[j+1,:])+BB(uold[j,:]))*∇u_ap[j,:]
+    #end
     @boundary_update
     @update_rhs
   end
   uold = similar(u)
   rhs = zeros(u)
   @inbounds for i=1:numiters
-    dt = cdt(uold, CFL, dx, Jf)
+    dt = cdt(u, CFL, dx, Jf)
     t += dt
     @fv_deterministicloop
     @fv_footer
@@ -290,8 +296,8 @@ function solve(
   prob::ConservationLawsProblem,
   alg::AbstractFVAlgorithm;
   timeseries_steps::Int = 100,
-  iterations=1000,
-  progress_steps::Int=1000,progressbar::Bool=false,progressbar_name="FV",kwargs...)
+  iterations=100000000,
+  progressbar::Bool=false,progressbar_name="FV",kwargs...)
 
   #Unroll some important constants
   @unpack N,x,dx,bdtype = prob.mesh
@@ -305,10 +311,9 @@ function solve(
   t = 0.0
 
   #Equation Loop
-  u=FV_solve(FVIntegrator{typeof(alg),typeof(tend),
-  typeof(u0),typeof(dx),typeof(f),typeof(Jf)}(alg,N,u,f,Jf,CFL,dx,t,
-  bdtype,numvars,
-  numiters,typeTIntegration,timeseries_steps,progressbar,progress_steps,progressbar_name))
+  u=FV_solve(FVIntegrator(alg,N,u,f,Jf,CFL,dx,t,
+  bdtype,numvars,numiters,typeTIntegration,tend,timeseries_steps,
+    progressbar,progressbar_name))
 
   return(u)
 end
