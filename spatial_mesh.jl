@@ -7,7 +7,7 @@ type FVMesh{T1} <: AbstractFVMesh
   bdtype :: Symbol
 end
 
-function FVMesh(N::Int,xinit::Real,xend::Real,bdtype)
+function FVMesh(N::Int,xinit::Real,xend::Real,bdtype=:ZERO_FLUX)
 #Compute lenght (1D Mesh)
 L = xend - xinit
 dx = L/N
