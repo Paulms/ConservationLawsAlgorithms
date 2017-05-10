@@ -1,5 +1,4 @@
-include("spatial_mesh.jl")
-include("KT_scheme.jl")
+include("ConservationLawsDiffEq.jl")
 
 const N = 100
 const CFL = 0.1
