@@ -1,9 +1,10 @@
-using DiffEqBase, DiffEqPDEBase
+__precompile__()
+module ConservationLawsDiffEq
+ using DiffEqBase, DiffEqPDEBase
 
-  using Parameters
-  using Compat
+  using Parameters, Compat, Juno
   using ForwardDiff
-  
+
   # Interfaces
   import DiffEqBase: solve, @def
 
@@ -13,3 +14,9 @@ using DiffEqBase, DiffEqPDEBase
   include("algorithms.jl")
   include("KT_scheme.jl")
   include("fv_solve.jl")
+
+  export solve
+  export FVMesh
+  export ConservationLawsProblem, ConservationLawsWithDiffusionProblem
+  export FVKTAlgorithm
+end

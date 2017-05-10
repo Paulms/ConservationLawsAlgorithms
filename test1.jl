@@ -1,4 +1,5 @@
-include("ConservationLawsDiffEq.jl")
+include("./ConservationLawsDiffEq.jl")
+using ConservationLawsDiffEq
 
 const CFL = 0.1
 const Tend = 0.2

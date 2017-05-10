@@ -101,36 +101,6 @@ end
   end
 end
 
-@def fv_deterministicloop begin
-  uold = copy(u)
-  if (typeTIntegration == :FORWARD_EULER)
-    rhs!(rhs, uold, N, M,dx, dt, bdtype)
-    u = uold + dt*rhs
-  elseif (typeTIntegration == :TVD_RK2)
-    #FIRST Step
-    rhs!(rhs, uold, N, M,dx, dt, bdtype)
-    u = 0.5*(uold + dt*rhs)
-    #Second Step
-    rhs!(rhs, uold + dt*rhs, N, M,dx, dt, bdtype)
-    u = u + 0.5*(uold + dt*rhs)
-  elseif (typeTIntegration == :RK4)
-    #FIRST Step
-    rhs!(rhs, uold, N, M,dx, dt, bdtype)
-    u = old + dt/6*rhs
-    #Second Step
-    rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, bdtype)
-    u = u + dt/3*rhs
-    #Third Step
-    rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, bdtype)
-    u = u + dt/3*rhs
-    #Fourth Step
-    rhs!(rhs, uold+dt*rhs, N, M,dx, dt, bdtype)
-    u = u + dt/6 *rhs
-  else
-    throw("Time integrator not defined...")
-  end
-end
-
 @def boundary_header begin
   ss = 0
   if bdtype == :PERIODIC
@@ -160,4 +130,35 @@ end
   end
   j = N-ss
   rhs[j-ss,:] =  -1/dx*(hhright-hh[j-1,:]-(ppright - pp[j-1,:]))
+end
+
+# Time integrators
+@def fv_deterministicloop begin
+  uold = copy(u)
+  if (typeTIntegration == :FORWARD_EULER)
+    rhs!(rhs, uold, N, M,dx, dt, bdtype)
+    u = uold + dt*rhs
+  elseif (typeTIntegration == :TVD_RK2)
+    #FIRST Step
+    rhs!(rhs, uold, N, M,dx, dt, bdtype)
+    u = 0.5*(uold + dt*rhs)
+    #Second Step
+    rhs!(rhs, uold + dt*rhs, N, M,dx, dt, bdtype)
+    u = u + 0.5*(uold + dt*rhs)
+  elseif (typeTIntegration == :RK4)
+    #FIRST Step
+    rhs!(rhs, uold, N, M,dx, dt, bdtype)
+    u = old + dt/6*rhs
+    #Second Step
+    rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, bdtype)
+    u = u + dt/3*rhs
+    #Third Step
+    rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, bdtype)
+    u = u + dt/3*rhs
+    #Fourth Step
+    rhs!(rhs, uold+dt*rhs, N, M,dx, dt, bdtype)
+    u = u + dt/6 *rhs
+  else
+    throw("Time integrator not defined...")
+  end
 end
