@@ -2,7 +2,8 @@ using DiffEqBase, DiffEqPDEBase
 
   using Parameters
   using Compat
-
+  using ForwardDiff
+  
   # Interfaces
   import DiffEqBase: solve, @def
 

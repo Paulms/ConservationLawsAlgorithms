@@ -21,11 +21,12 @@ end
 #Common macros for all schemes
 
 @def fv_deterministicpreamble begin
-  @unpack N,u,Flux,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,timeseries_steps,
+  @unpack N,u,Flux,DiffMat,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,timeseries_steps,
   progressbar, progressbar_name = integrator
   progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
   percentage = 0
   limit = tend/5
+  hasDiffusion = (DiffMat != nothing)
 end
 
 @def fv_postamble begin

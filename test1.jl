@@ -29,7 +29,7 @@ end
 
 mesh = FVMesh(N,-5.0,5.0,:PERIODIC)
 u0 = u0_func(mesh.x)
-prob = ConservationLawsProblem(u0,f,Jf,CFL,Tend,mesh)
+prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 @time u = solve(prob, FVKTAlgorithm();progressbar=true)
 
 #Plot

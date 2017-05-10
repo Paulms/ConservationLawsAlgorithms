@@ -1,8 +1,9 @@
-immutable FVIntegrator{T1,tType,uType,dxType,tendType,F,G}
+immutable FVIntegrator{T1,tType,uType,dxType,tendType,F,G,B}
   alg::T1
   N::Int
   u::uType
   Flux::F
+  DiffMat::B
   Jf :: G
   CFL :: Real
   dx :: dxType

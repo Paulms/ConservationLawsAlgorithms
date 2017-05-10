@@ -1,4 +1,4 @@
-function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVKTAlgorithm,tType,uType,F,G})
+function FV_solve{tType,uType,F,G,B}(integrator::FVIntegrator{FVKTAlgorithm,tType,uType,F,G,B})
   @fv_deterministicpreamble
   @unpack Θ = integrator.alg
 
@@ -79,12 +79,14 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVKTAlgorithm,tType,
       hh[j,:] = 0.5*(FΦr[j,:]+FΦl[j,:])-0.5*(uold[j+1,:]-uold[j,:])*aa[j]+
       aa[j]*(1-λ*aa[j])/4*(∇u[j+1,:]+∇u[j,:]) + λ*dx/2*(aa[j])^2*∇Ψ[j,:]
     end
-    #∇u_ap = ∇u/dx#(uold[2:N,:]-uold[1:N-1,:])/dx
     # Diffusion
     pp = zeros(N-1,M)
-    #for j = 1:N-1
-    #  pp[j,:] = 0.5*(BB(uold[j+1,:])+BB(uold[j,:]))*∇u_ap[j,:]
-    #end
+    if hasDiffusion
+      ∇u_ap = ∇u/dx#(uold[2:N,:]-uold[1:N-1,:])/dx
+      for j = 1:N-1
+        pp[j,:] = 0.5*(DiffMat(uold[j+1,:])+DiffMat(uold[j,:]))*∇u_ap[j,:]
+      end
+    end
     @boundary_update
     @update_rhs
   end
