@@ -37,6 +37,7 @@ function solve(
   alg::AbstractFVAlgorithm;
   timeseries_steps::Int = 100,
   iterations=100000000,
+  TimeIntegrator=:TVD_RK2,
   progressbar::Bool=false,progressbar_name="FV",kwargs...)
 
   #Unroll some important constants
@@ -47,7 +48,7 @@ function solve(
     Jf = x -> ForwardDiff.jacobian(f,x)
   end
 
-  typeTIntegration = :TVD_RK2
+  typeTIntegration = TimeIntegrator
   numiters = iterations
 
   #Set Initial
