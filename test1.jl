@@ -1,6 +1,5 @@
 include("ConservationLawsDiffEq.jl")
 
-const N = 100
 const CFL = 0.1
 const Tend = 0.2
 const gr = 9.8
@@ -27,6 +26,7 @@ function u0_func(xx)
   return uinit
 end
 
+N = 100
 mesh = FVMesh(N,-5.0,5.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)

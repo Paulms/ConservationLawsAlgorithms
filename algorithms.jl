@@ -29,15 +29,51 @@ function cdt(u::AbstractArray, CFL, dx, JacF, BB)
   CFL/(1/dx*maxρ+1/(2*dx^2)*maxρB)
 end
 
+@inline function fluxρ(uj::Vector,JacF)
+  #maximum(abs(eigvals(Jf(uj))))
+  maximum(abs(eigvals(JacF(uj))))
+end
+
+@inline function maxfluxρ(u::AbstractArray,JacF)
+    maxρ = 0
+    N = size(u,1)
+    for i in 1:N
+      maxρ = max(maxρ, fluxρ(u[i,:],JacF))
+    end
+    maxρ
+end
+
+function minmod(a,b,c)
+  if (a > 0 && b > 0 && c > 0)
+    min(a,b,c)
+  elseif (a < 0 && b < 0 && c < 0)
+    max(a,b,c)
+  else
+    zero(a)
+  end
+end
+
+function minmod(a,b)
+  0.5*(sign(a)+sign(b))*min(abs(a),abs(b))
+end
+
+
 #Common macros for all schemes
 
-@def fv_deterministicpreamble begin
+@def fv_diffdeterministicpreamble begin
   @unpack N,u,Flux,DiffMat,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,timeseries_steps,
   progressbar, progressbar_name = integrator
   progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
   percentage = 0
   limit = tend/5
-  hasDiffusion = (DiffMat != nothing)
+end
+
+@def fv_deterministicpreamble begin
+  @unpack N,u,Flux,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,timeseries_steps,
+  progressbar, progressbar_name = integrator
+  progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
+  percentage = 0
+  limit = tend/5
 end
 
 @def fv_postamble begin
@@ -124,32 +160,4 @@ end
   end
   j = N-ss
   rhs[j-ss,:] =  -1/dx*(hhright-hh[j-1,:]-(ppright - pp[j-1,:]))
-end
-
-@inline function fluxρ(uj::Vector,JacF)
-  #maximum(abs(eigvals(Jf(uj))))
-  maximum(abs(eigvals(JacF(uj))))
-end
-
-@inline function maxfluxρ(u::AbstractArray,JacF)
-    maxρ = 0
-    N = size(u,1)
-    for i in 1:N
-      maxρ = max(maxρ, fluxρ(u[i,:],JacF))
-    end
-    maxρ
-end
-
-function minmod(a,b,c)
-  if (a > 0 && b > 0 && c > 0)
-    min(a,b,c)
-  elseif (a < 0 && b < 0 && c < 0)
-    max(a,b,c)
-  else
-    zero(a)
-  end
-end
-
-function minmod(a,b)
-  0.5*(sign(a)+sign(b))*min(abs(a),abs(b))
 end

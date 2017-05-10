@@ -14,8 +14,7 @@ function solve(
   if Jf == nothing
     Jf = x -> ForwardDiff.jacobian(f,x)
   end
-  DiffMat = nothing
-  
+
   typeTIntegration = :TVD_RK2
   numiters = iterations
 
@@ -24,7 +23,7 @@ function solve(
   t = 0.0
 
   #Equation Loop
-  u=FV_solve(FVIntegrator(alg,N,u,f,DiffMat,Jf,CFL,dx,t,
+  u=FV_solve(FVIntegrator(alg,N,u,f,Jf,CFL,dx,t,
   bdtype,numvars,numiters,typeTIntegration,tend,timeseries_steps,
     progressbar,progressbar_name))
 
@@ -55,7 +54,7 @@ function solve(
   t = 0.0
 
   #Equation Loop
-  u=FV_solve(FVIntegrator(alg,N,u,f,DiffMat,Jf,CFL,dx,t,
+  u=FV_solve(FVDiffIntegrator(alg,N,u,f,DiffMat,Jf,CFL,dx,t,
   bdtype,numvars,numiters,typeTIntegration,tend,timeseries_steps,
     progressbar,progressbar_name))
 
