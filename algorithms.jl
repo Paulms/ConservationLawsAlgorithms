@@ -18,6 +18,17 @@ function cdt(u::Matrix, CFL, dx,JacF)
   CFL/(1/dx*maxρ)
 end
 
+function cdt(u::AbstractArray, CFL, dx, JacF, BB)
+  maxρ = 0
+  maxρB = 0
+  N = size(u,1)
+  for i in 1:N
+    maxρ = max(maxρ, fluxρ(u[i,:],JacF))
+    maxρB = max(maxρB, maximum(abs(eigvals(BB(u[i,:])))))
+  end
+  CFL/(1/dx*maxρ+1/(2*dx^2)*maxρB)
+end
+
 #Common macros for all schemes
 
 @def fv_deterministicpreamble begin

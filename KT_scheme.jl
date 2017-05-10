@@ -93,7 +93,7 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVIntegrator{FVKTAlgorithm,tTyp
   uold = similar(u)
   rhs = zeros(u)
   @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
+    dt = hasDiffusion ? cdt(u, CFL, dx, Jf, DiffMat) : cdt(u, CFL, dx, Jf)
     t += dt
     @fv_deterministicloop
     @fv_footer
