@@ -4,6 +4,7 @@ function solve(
   prob::ConservationLawsProblem,
   alg::AbstractFVAlgorithm;
   timeseries_steps::Int = 100,
+  save_everystep::Bool = false,
   iterations=100000000,
   TimeIntegrator=:TVD_RK2,
   progressbar::Bool=false,progressbar_name="FV",kwargs...)
@@ -23,12 +24,17 @@ function solve(
   u = copy(u0)
   t = 0.0
 
+  #Setup timeseries
+  timeseries = Vector{typeof(u)}(0)
+  push!(timeseries,copy(u))
+  ts = Float64[t]
+
   #Equation Loop
-  u=FV_solve(FVIntegrator(alg,N,u,f,Jf,CFL,dx,t,
-  bdtype,numvars,numiters,typeTIntegration,tend,timeseries_steps,
+  u,timeseries,ts=FV_solve(FVIntegrator(alg,N,u,f,Jf,CFL,dx,t,
+  bdtype,numvars,numiters,typeTIntegration,tend,save_everystep,ts,timeseries,timeseries_steps,
     progressbar,progressbar_name))
 
-  return(u)
+  return(FVSolution(timeseries,ts,prob))
 end
 
 function solve(
@@ -36,6 +42,7 @@ function solve(
   prob::ConservationLawsWithDiffusionProblem,
   alg::AbstractFVAlgorithm;
   timeseries_steps::Int = 100,
+  save_everystep::Bool = false,
   iterations=100000000,
   TimeIntegrator=:TVD_RK2,
   progressbar::Bool=false,progressbar_name="FV",kwargs...)
@@ -55,10 +62,15 @@ function solve(
   u = copy(u0)
   t = 0.0
 
+  #Setup timeseries
+  timeseries = Vector{typeof(u)}(0)
+  push!(timeseries,copy(u))
+  ts = Float64[t]
+
   #Equation Loop
-  u=FV_solve(FVDiffIntegrator(alg,N,u,f,DiffMat,Jf,CFL,dx,t,
-  bdtype,numvars,numiters,typeTIntegration,tend,timeseries_steps,
+  u,timeseries,ts=FV_solve(FVDiffIntegrator(alg,N,u,f,DiffMat,Jf,CFL,dx,t,
+  bdtype,numvars,numiters,typeTIntegration,tend,save_everystep,ts,timeseries,timeseries_steps,
     progressbar,progressbar_name))
 
-  return(u)
+  return(FVSolution(timeseries,ts,prob))
 end

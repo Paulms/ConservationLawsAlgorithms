@@ -12,6 +12,9 @@ immutable FVIntegrator{T1,tType,uType,dxType,tendType,F,G}
   numiters::Int
   typeTIntegration::Symbol
   tend::tendType
+  save_everystep::Bool
+  ts::Vector{tType}
+  timeseries::Vector{uType}
   timeseries_steps::Int
   progressbar::Bool
   progressbar_name::String
@@ -32,6 +35,9 @@ immutable FVDiffIntegrator{T1,tType,uType,dxType,tendType,F,G,B}
   numiters::Int
   typeTIntegration::Symbol
   tend::tendType
+  save_everystep::Bool
+  ts::Vector{tType}
+  timeseries::Vector{uType}
   timeseries_steps::Int
   progressbar::Bool
   progressbar_name::String

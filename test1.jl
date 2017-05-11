@@ -31,9 +31,9 @@ N = 100
 mesh = FVMesh(N,-5.0,5.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
-@time u = solve(prob, FVKTAlgorithm();progressbar=true)
+@time sol = solve(prob, FVKTAlgorithm();progressbar=true)
 
 #Plot
 using Plots
-plot(mesh.x, u0[:,1], lab="ho",line=(:dot,2))
-plot!(mesh.x, u[:,1],lab="ESNC h")
+plot(mesh.x, sol.u[1][:,1], lab="ho",line=(:dot,2))
+plot!(mesh.x, sol.u[end][:,1],lab="ESNC h")

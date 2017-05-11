@@ -61,15 +61,19 @@ end
 #Common macros for all schemes
 
 @def fv_diffdeterministicpreamble begin
-  @unpack N,u,Flux,DiffMat,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,timeseries_steps,
+  @unpack N,u,Flux,DiffMat,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,
+  save_everystep,ts,timeseries_steps,
   progressbar, progressbar_name = integrator
   progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
   percentage = 0
   limit = tend/5
+  timeStep = tend/timeseries_steps
+  timeLimit = timeStep
 end
 
 @def fv_deterministicpreamble begin
-  @unpack N,u,Flux,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,timeseries_steps,
+  @unpack N,u,Flux,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,
+  save_everystep,ts,timeseries,timeseries_steps,
   progressbar, progressbar_name = integrator
   progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
   percentage = 0
@@ -78,18 +82,19 @@ end
 
 @def fv_postamble begin
   progressbar && Juno.done(prog)
-  # if ts[end] != t
-  #   push!(timeseries,copy(u))
-  #   push!(ts,t)
-  # end
-  u#,timeseries,ts
+  if ts[end] != t
+     push!(timeseries,copy(u))
+     push!(ts,t)
+  end
+  u,timeseries,ts
 end
 
 @def fv_footer begin
-  # if save_everystep && i%timeseries_steps==0
-  #   push!(timeseries,copy(u))
-  #   push!(ts,t)
-  # end
+  if save_everystep && t>timeLimit
+     push!(timeseries,copy(u))
+     push!(ts,t)
+     timeLimit = timeLimit + timeStep
+  end
   if progressbar && t>limit
     percentage = percentage + 10
     limit = limit +tend/10
