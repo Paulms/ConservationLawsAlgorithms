@@ -83,12 +83,12 @@ u0 = u0_func(mesh.x)
 #Setup problem:
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 #Solve problem using Kurganov-Tadmor scheme
-@time u = solve(prob, FVKTAlgorithm();progressbar=true)
+@time sol = solve(prob, FVKTAlgorithm();progressbar=true)
 
-#Plot solution
+#Plot
 using Plots
-plot(mesh.x, u0[:,1], lab="ho",line=(:dot,2))
-plot!(mesh.x, u[:,1],lab="ESNC h")
+plot(mesh.x, sol.u[1][:,1], lab="ho",line=(:dot,2))
+plot!(mesh.x, sol.u[end][:,1],lab="KT h")
 ```
 
 # Disclamer
