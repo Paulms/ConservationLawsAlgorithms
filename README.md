@@ -75,7 +75,7 @@ end
 
 # Setup Mesh
 N = 100
-mesh = FVMesh(N,-5.0,5.0,:PERIODIC)
+mesh = Uniform1DFVMesh(N,-5.0,5.0,:PERIODIC)
 
 #Setup initial condition
 u0 = u0_func(mesh.x)
