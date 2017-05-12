@@ -92,4 +92,4 @@ plot!(mesh.x, sol.u[end][:,1],lab="KT h")
 ```
 
 # Disclamer
-**It is very early and experimental code!!!**
+**This is very early and experimental code!!!**
