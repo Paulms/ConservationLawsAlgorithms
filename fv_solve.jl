@@ -10,7 +10,6 @@ function solve(
   progressbar::Bool=false,progressbar_name="FV",kwargs...)
 
   #Unroll some important constants
-  @unpack N,x,dx,bdtype = prob.mesh
   @unpack u0,f,Jf,CFL,tend,numvars,mesh = prob
 
   if Jf == nothing
@@ -30,8 +29,8 @@ function solve(
   ts = Float64[t]
 
   #Equation Loop
-  u,timeseries,ts=FV_solve(FVIntegrator(alg,N,u,f,Jf,CFL,dx,t,
-  bdtype,numvars,numiters,typeTIntegration,tend,save_everystep,ts,timeseries,timeseries_steps,
+  u,timeseries,ts=FV_solve(FVIntegrator(alg,prob.mesh,u,f,Jf,CFL,t,
+  numvars,numiters,typeTIntegration,tend,save_everystep,ts,timeseries,timeseries_steps,
     progressbar,progressbar_name))
 
   return(FVSolution(timeseries,ts,prob))
@@ -48,7 +47,6 @@ function solve(
   progressbar::Bool=false,progressbar_name="FV",kwargs...)
 
   #Unroll some important constants
-  @unpack N,x,dx,bdtype = prob.mesh
   @unpack u0,f,Jf,CFL,tend,numvars,mesh,DiffMat = prob
 
   if Jf == nothing
@@ -68,8 +66,8 @@ function solve(
   ts = Float64[t]
 
   #Equation Loop
-  u,timeseries,ts=FV_solve(FVDiffIntegrator(alg,N,u,f,DiffMat,Jf,CFL,dx,t,
-  bdtype,numvars,numiters,typeTIntegration,tend,save_everystep,ts,timeseries,timeseries_steps,
+  u,timeseries,ts=FV_solve(FVDiffIntegrator(alg,prob.mesh,u,f,DiffMat,Jf,CFL,t,
+  numvars,numiters,typeTIntegration,tend,save_everystep,ts,timeseries,timeseries_steps,
     progressbar,progressbar_name))
 
   return(FVSolution(timeseries,ts,prob))

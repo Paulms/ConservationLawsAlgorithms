@@ -8,7 +8,17 @@ module ConservationLawsDiffEq
   # Interfaces
   import DiffEqBase: solve, @def
 
-  #@compat abstract type AbstractFVSolution{T,N} <: <: AbstractTimeseriesSolution{T,N} end
+  #Solutions
+  @compat abstract type AbstractFVSolution{T,N} <: AbstractTimeseriesSolution{T,N} end
+  # Mesh
+  @compat abstract type AbstractFVMesh end
+  @compat abstract type AbstractUniformFVMesh <: AbstractFVMesh end
+  # Problems
+  @compat abstract type PDEProblem <: DEProblem end
+  @compat abstract type AbstractConservationLawProblem{MeshType} <: PDEProblem end
+  # algorithms
+  @compat abstract type PDEAlgorithm <: DEAlgorithm end
+  @compat abstract type AbstractFVAlgorithm <: PDEAlgorithm end
 
   include("spatial_mesh.jl")
   include("ConservationLawsProblems.jl")
@@ -19,7 +29,7 @@ module ConservationLawsDiffEq
   include("fv_solve.jl")
 
   export solve
-  export FVMesh
+  export Uniform1DFVMesh
   export ConservationLawsProblem, ConservationLawsWithDiffusionProblem
   export FVKTAlgorithm
 end

@@ -1,13 +1,11 @@
-immutable FVIntegrator{T1,tType,uType,dxType,tendType,F,G}
+immutable FVIntegrator{T1,mType,tType,uType,tendType,F,G}
   alg::T1
-  N::Int
+  mesh::mType
   u::uType
   Flux::F
   Jf :: G
   CFL :: Real
-  dx :: dxType
   t::tType
-  bdtype :: Symbol
   M::Int
   numiters::Int
   typeTIntegration::Symbol
@@ -20,17 +18,15 @@ immutable FVIntegrator{T1,tType,uType,dxType,tendType,F,G}
   progressbar_name::String
 end
 
-immutable FVDiffIntegrator{T1,tType,uType,dxType,tendType,F,G,B}
+immutable FVDiffIntegrator{T1,mType,tType,uType,tendType,F,G,B}
   alg::T1
-  N::Int
+  mesh::mType
   u::uType
   Flux::F
   DiffMat::B
   Jf :: G
   CFL :: Real
-  dx :: dxType
   t::tType
-  bdtype :: Symbol
   M::Int
   numiters::Int
   typeTIntegration::Symbol

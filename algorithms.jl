@@ -1,6 +1,3 @@
-@compat abstract type PDEAlgorithm <: DEAlgorithm end
-@compat abstract type AbstractFVAlgorithm <: PDEAlgorithm end
-
 immutable FVKTAlgorithm <: AbstractFVAlgorithm
   Θ :: Float64
 end
@@ -57,27 +54,27 @@ function minmod(a,b)
   0.5*(sign(a)+sign(b))*min(abs(a),abs(b))
 end
 
-
 #Common macros for all schemes
-
+@def fv_uniform1Dmeshpreamble begin
+  @unpack N,x,dx,bdtype = integrator.mesh
+end
 @def fv_diffdeterministicpreamble begin
-  @unpack N,u,Flux,DiffMat,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,
-  save_everystep,ts,timeseries_steps,
-  progressbar, progressbar_name = integrator
+  @unpack u,Flux,DiffMat,Jf,CFL,t,M,numiters,typeTIntegration,tend,
+  save_everystep,ts,timeseries_steps,progressbar, progressbar_name = integrator
+end
+
+@def fv_deterministicpreamble begin
+  @unpack u,Flux,Jf,CFL,t,M,numiters,typeTIntegration,tend,
+  save_everystep,ts,timeseries,timeseries_steps,progressbar,
+  progressbar_name = integrator
+end
+
+@def fv_generalpreamble begin
   progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
   percentage = 0
   limit = tend/5
   timeStep = tend/timeseries_steps
   timeLimit = timeStep
-end
-
-@def fv_deterministicpreamble begin
-  @unpack N,u,Flux,Jf,CFL,dx,t,bdtype,M,numiters,typeTIntegration,tend,
-  save_everystep,ts,timeseries,timeseries_steps,
-  progressbar, progressbar_name = integrator
-  progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
-  percentage = 0
-  limit = tend/5
 end
 
 @def fv_postamble begin

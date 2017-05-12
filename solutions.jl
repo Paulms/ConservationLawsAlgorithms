@@ -1,4 +1,4 @@
-@compat abstract type AbstractFVSolution{T,N} <: DESolution end
+#@compat abstract type AbstractFVSolution{T,N} <: DESolution end
 
 type FVSolution{T,N,uType,tType,ProbType} <: AbstractFVSolution{T,N}
   u::uType

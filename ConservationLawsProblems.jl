@@ -1,6 +1,3 @@
-@compat abstract type PDEProblem <: DEProblem end
-@compat abstract type AbstractConservationLawProblem{MeshType} <: PDEProblem end
-
 type ConservationLawsProblem{MeshType,F,F2,F3,F4,F5} <: AbstractConservationLawProblem{MeshType}
  u0::F5
  f::F
