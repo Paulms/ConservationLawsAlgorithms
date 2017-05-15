@@ -72,7 +72,7 @@ end
 @def fv_generalpreamble begin
   progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
   percentage = 0
-  limit = tend/5
+  limit = tend/10.0
   timeStep = tend/timeseries_steps
   timeLimit = timeStep
 end
@@ -94,9 +94,9 @@ end
   end
   if progressbar && t>limit
     percentage = percentage + 10
-    limit = limit +tend/10
+    limit = limit +tend/10.0
     Juno.msg(prog,"dt="*string(dt))
-    Juno.progress(prog,percentage)
+    Juno.progress(prog,percentage/10.0)
   end
   if (t>tend)
     break
