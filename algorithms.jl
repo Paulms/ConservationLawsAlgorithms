@@ -96,7 +96,7 @@ end
     percentage = percentage + 10
     limit = limit +tend/10.0
     Juno.msg(prog,"dt="*string(dt))
-    Juno.progress(prog,percentage/10.0)
+    Juno.progress(prog,percentage/100.0)
   end
   if (t>tend)
     break
