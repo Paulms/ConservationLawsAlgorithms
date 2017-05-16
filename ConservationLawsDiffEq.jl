@@ -3,7 +3,7 @@ module ConservationLawsDiffEq
   using DiffEqBase, DiffEqPDEBase
 
   using Parameters, Compat, Juno
-  using ForwardDiff
+  using ForwardDiff, OffsetArrays
 
   # Interfaces
   import DiffEqBase: solve, @def

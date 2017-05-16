@@ -104,34 +104,33 @@ end
 end
 
 @def boundary_header begin
-  ss = 0
+  uu = OffsetArray(eltype(uold), (-ngc+1):(N+ngc),1:M)
+  uu[:] = zero(eltype(uold))
+  uu[1:N,:] = uold
   if bdtype == :PERIODIC
-    ss = 1
-    N = N + 2   #Create ghost cells
-    utemp = copy(uold)
-    uold = zeros(N,M)
-    uold[2:N-1,:] = utemp
-    uold[1,:] = utemp[N-2,:]
-    uold[N,:] = utemp[1,:]
+    for i = (-ngc+1):0
+      uu[i,:] = uold[N+i,:]
+      uu[N+ngc+i,:] = uold[i+ngc,:]
+    end
+  elseif bdtype == :ZERO_FLUX
+    for i = (-ngc+1):0
+      uu[i,:] = uold[1,:]
+      uu[N+ngc+i,:] = uold[end,:]
+    end
   end
 end
 
 @def boundary_update begin
-  hhleft = 0; hhright = 0; ppleft = 0; ppright = 0
-  if bdtype == :PERIODIC
-    hhleft = hh[1,:]; ppleft = pp[1,:]
-    hhright = hh[N-1,:]; ppright = pp[N-1,:]
+  if bdtype == :ZERO_FLUX
+    hh[1,:]=0.0; pp[1,:]=0.0
+    hh[end,:]=0.0; pp[end,:]=0.0
   end
 end
 
 @def update_rhs begin
-  j = 1 + ss
-  rhs[j-ss,:] = - 1/dx * (hh[j,:] -hhleft - (pp[j,:]-ppleft))
-  for j = (2+ss):(N-1-ss)
-    rhs[j-ss,:] = - 1/dx * (hh[j,:]-hh[j-1,:]-(pp[j,:]-pp[j-1,:]))
+  for j = 1:N
+    rhs[j,:] = - 1/dx * (hh[j+1,:]-hh[j,:]-(pp[j+1,:]-pp[j,:]))
   end
-  j = N-ss
-  rhs[j-ss,:] =  -1/dx*(hhright-hh[j-1,:]-(ppright - pp[j-1,:]))
 end
 
 # Time integrators
