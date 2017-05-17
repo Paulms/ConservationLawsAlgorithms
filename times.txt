@@ -1,0 +1,21 @@
+Test 1
+After OffsetArrays
+Comp 2 N=200
+7.823967 seconds (43.37 M allocations: 2.516 GB, 4.43% gc time)
+  1.743672 seconds (32.53 M allocations: 2.275 GB, 16.80% gc time)
+After OffsetArrays and u𝚥(j)
+Comp 2 N=200
+ 6.785877 seconds (35.01 M allocations: 2.308 GB, 3.99% gc time)
+  1.361715 seconds (24.75 M allocations: 2.082 GB, 15.80% gc time)
+
+
+Test 2
+After OffsetArrays
+Comp 2 N=500
+12.821574 seconds (217.75 M allocations: 10.107 GB, 9.99% gc time)
+  6.506024 seconds (206.41 M allocations: 9.837 GB, 16.80% gc time)
+After OffsetArrays and u𝚥(j)
+Comp 2 N=500
+ 11.291968 seconds (164.42 M allocations: 8.782 GB, 8.31% gc time)
+  5.398935 seconds (152.98 M allocations: 8.510 GB, 16.79% gc time)
+

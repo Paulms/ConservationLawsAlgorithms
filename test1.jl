@@ -27,7 +27,7 @@ function u0_func(xx)
   return uinit
 end
 
-N = 100
+N = 200
 mesh = Uniform1DFVMesh(N,-5.0,5.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)

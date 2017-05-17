@@ -105,18 +105,24 @@ end
 
 @def boundary_header begin
   uu = OffsetArray(eltype(uold), (-ngc+1):(N+ngc),1:M)
-  uu[:] = zero(eltype(uold))
-  uu[1:N,:] = uold
+  uu[(-ngc+1):(N+ngc),1:M] = zero(eltype(uold))
+  uu[1:N,1:M] = uold
   if bdtype == :PERIODIC
     for i = (-ngc+1):0
-      uu[i,:] = uold[N+i,:]
-      uu[N+ngc+i,:] = uold[i+ngc,:]
+      uu[i,1:M] = uold[N+i,:]
+      uu[N+ngc+i,1:M] = uold[i+ngc,:]
     end
   elseif bdtype == :ZERO_FLUX
     for i = (-ngc+1):0
-      uu[i,:] = uold[1,:]
-      uu[N+ngc+i,:] = uold[end,:]
+      uu[i,1:M] = uold[1,:]
+      uu[N+ngc+i,1:M] = uold[end,:]
     end
+  end
+  # TODO: use it until OffsetArrays support size and common operations
+  function u𝚥(j::Int)
+    temp = zeros(M)
+    temp[:] = uu[j,1:M]
+    return(temp)
   end
 end
 

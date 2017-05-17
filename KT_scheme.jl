@@ -15,7 +15,7 @@
     end
   end
   if bdtype == :PERIODIC
-    ∇u[0,:] = ∇u[N,:]; ∇u[N+1,:] = ∇u[1,:]
+    ∇u[0,1:M] = ∇u[N,:]; ∇u[N+1,1:M] = ∇u[1,:]
   end
   # Local speeds of propagation
   uminus = zeros(N+1,M);uplus=zeros(N+1,M)
@@ -73,19 +73,19 @@
     if (aa[j] != 0)
       FΦr[j,:] = Flux(Φ_r[j,:])
       FΦl[j,:] = Flux(Φ_l[j,:])
-      Ψr[j,:] = 0.5*(uu[j-1,:]+uu[j,:])+(1-λ*aa[j])/4*(∇u[j-1,:]-∇u[j,:])-1/(2*aa[j])*
+      Ψr[j,:] = 0.5*(u𝚥(j-1)+u𝚥(j))+(1-λ*aa[j])/4*(∇u[j-1,1:M]-∇u[j,1:M])-1/(2*aa[j])*
       (FΦr[j,:]-FΦl[j,:])
     else
-      Ψr[j,:] = 0.5*(uu[j-1,:]+uu[j,:])
+      Ψr[j,:] = 0.5*(u𝚥(j-1)+u𝚥(j))
     end
   end
   Ψ = zeros(uu)
   for j = 1:N
-    Ψ[j,:] = uu[j,:] - λ/2*(aa[j+1]-aa[j])*∇u[j,:]-λ/(1-λ*(aa[j+1]+aa[j]))*
+    Ψ[j,1:M] = u𝚥(j) - λ/2*(aa[j+1]-aa[j])*∇u[j,1:M]-λ/(1-λ*(aa[j+1]+aa[j]))*
     (FΦl[j+1,:]-FΦr[j,:])
   end
   if bdtype == :PERIODIC
-    Ψ[0,:] = Ψ[N,:]; Ψ[N+1,:] = Ψ[1,:]
+    Ψ[0,1:M] = Ψ[N,1:M]; Ψ[N+1,1:M] = Ψ[1,1:M]
   end
 
   # Discrete derivatives
@@ -111,8 +111,8 @@
   # Numerical Fluxes
   hh = zeros(N+1,M)
   for j = 1:(N+1)
-    hh[j,:] = 0.5*(FΦr[j,:]+FΦl[j,:])-0.5*(uu[j,:]-uu[j-1,:])*aa[j]+
-    aa[j]*(1-λ*aa[j])/4*(∇u[j,:]+∇u[j-1,:]) + λ*dx/2*(aa[j])^2*∇Ψ[j,:]
+    hh[j,:] = 0.5*(FΦr[j,:]+FΦl[j,:])-0.5*(u𝚥(j)-u𝚥(j-1))*aa[j]+
+    aa[j]*(1-λ*aa[j])/4*(∇u[j,1:M]+∇u[j-1,1:M]) + λ*dx/2*(aa[j])^2*∇Ψ[j,:]
   end
 
 end
@@ -161,7 +161,7 @@ function FV_solve{tType,uType,tendType,F,G,B}(integrator::FVDiffIntegrator{FVKTA
     pp = zeros(N+1,M)
     ∇u_ap = ∇u/dx#(uu[2:N,:]-uu[1:N-1,:])/dx
     for j = 1:(N+1)
-      pp[j,:] = 0.5*(DiffMat(uu[j,:])+DiffMat(uu[j-1,:]))*∇u_ap[j,:]
+      pp[j,:] = 0.5*(DiffMat(uu[j,:])+DiffMat(uu[j-1,:]))*∇u_ap[j,1:M]
     end
     @boundary_update
     @update_rhs
