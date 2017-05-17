@@ -1,4 +1,4 @@
-function get_L2_errors{T,N,uType,tType,ProbType}(sol::FVSolution{T,N,uType,tType,
+function get_L1_errors{T,N,uType,tType,ProbType}(sol::FVSolution{T,N,uType,tType,
   ProbType,Uniform1DFVMesh}, ref::Function)
     x = sol.prob.mesh.x
     @unpack tend = sol.prob

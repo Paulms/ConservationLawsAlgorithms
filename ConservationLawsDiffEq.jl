@@ -37,5 +37,5 @@ module ConservationLawsDiffEq
   export Uniform1DFVMesh
   export ConservationLawsProblem, ConservationLawsWithDiffusionProblem
   export FVKTAlgorithm, FVTecnoAlgorithm
-  export get_L2_errors
+  export get_L1_errors
 end

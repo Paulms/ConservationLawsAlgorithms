@@ -31,8 +31,8 @@ prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 @time sol = solve(prob, FVKTAlgorithm();progressbar=true)
 @time sol2 = solve(prob, FVTecnoAlgorithm(Nflux);progressbar=true)
 
-get_L2_errors(sol, exact_sol)
-get_L2_errors(sol2, exact_sol)
+get_L1_errors(sol, exact_sol)
+get_L1_errors(sol2, exact_sol)
 
 #Plot
 using Plots
