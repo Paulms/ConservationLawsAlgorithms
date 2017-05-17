@@ -29,10 +29,13 @@ mesh = Uniform1DFVMesh(N,-1.0,1.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 @time sol = solve(prob, FVKTAlgorithm();progressbar=true)
-@time sol2 = solve(prob, FVTecnoAlgorithm(Nflux);progressbar=true)
+@time sol2 = solve(prob, FVTecnoAlgorithm(Nflux;order=3);progressbar=true)
 
-get_L1_errors(sol, exact_sol)
-get_L1_errors(sol2, exact_sol)
+#get_L1_errors(sol, exact_sol)
+#get_L1_errors(sol2, exact_sol)
+#5.16
+
+#sum(abs(sol2.u[end][:,1] - exact_sol(mesh.x,Tend)[:,1]))
 
 #Plot
 using Plots
