@@ -21,6 +21,8 @@ function u0_func(xx)
 end
 
 Nflux(ϕl::Vector, ϕr::Vector) = 0.5*(f(ϕl)+f(ϕr))
+exact_sol(x::Vector, t::Float64) = hcat(0.5*(sin(4*π*(-t+x))+sin(4*π*(t+x))),
+0.5*(sin(4*π*(-t+x))-sin(4*π*(t+x))))
 
 N = 500
 mesh = Uniform1DFVMesh(N,-1.0,1.0,:PERIODIC)
@@ -29,8 +31,17 @@ prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 @time sol = solve(prob, FVKTAlgorithm();progressbar=true)
 @time sol2 = solve(prob, FVTecnoAlgorithm(Nflux);progressbar=true)
 
+get_L2_errors(sol, exact_sol)
+get_L2_errors(sol2, exact_sol)
+
 #Plot
 using Plots
 plot(mesh.x, sol.u[1][:,1], lab="ho",line=(:dot,2))
-plot!(mesh.x, sol.u[end][:,1],lab="KT h")
-plot!(mesh.x, sol2.u[end][:,1],lab="Tecno h")
+plot!(mesh.x, sol.u[end][:,1],lab="KT h",line = (:dot,2))
+plot!(mesh.x, sol2.u[end][:,1],lab="Tecno h",line=(:dot,3))
+plot!(mesh.x, exact_sol(mesh.x,Tend)[:,1],lab="Ref")
+
+plot(mesh.x, sol.u[1][:,2], lab="ho",line=(:dot,2))
+plot!(mesh.x, sol.u[end][:,2],lab="KT h",line = (:dot,2))
+plot!(mesh.x, sol2.u[end][:,2],lab="Tecno h",line=(:dot,3))
+plot!(mesh.x, exact_sol(mesh.x,Tend)[:,2],lab="Ref")

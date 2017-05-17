@@ -3,7 +3,7 @@ module ConservationLawsDiffEq
   using DiffEqBase, DiffEqPDEBase
 
   using Parameters, Compat, Juno
-  using ForwardDiff, OffsetArrays
+  using ForwardDiff, OffsetArrays, Interpolations
 
   # Interfaces
   import DiffEqBase: solve, @def
@@ -26,6 +26,7 @@ module ConservationLawsDiffEq
   include("algorithms.jl")
   include("solutions.jl")
   include("fv_solve.jl")
+  include("errors.jl")
 
   #Algoritms
   include("KT_scheme.jl")
@@ -36,4 +37,5 @@ module ConservationLawsDiffEq
   export Uniform1DFVMesh
   export ConservationLawsProblem, ConservationLawsWithDiffusionProblem
   export FVKTAlgorithm, FVTecnoAlgorithm
+  export get_L2_errors
 end
