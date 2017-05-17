@@ -24,12 +24,16 @@ module ConservationLawsDiffEq
   include("ConservationLawsProblems.jl")
   include("fv_integrators.jl")
   include("algorithms.jl")
-  include("KT_scheme.jl")
   include("solutions.jl")
   include("fv_solve.jl")
+
+  #Algoritms
+  include("KT_scheme.jl")
+  include("ENO_rec.jl")
+  include("Tecno_scheme.jl")
 
   export solve
   export Uniform1DFVMesh
   export ConservationLawsProblem, ConservationLawsWithDiffusionProblem
-  export FVKTAlgorithm
+  export FVKTAlgorithm, FVTecnoAlgorithm
 end

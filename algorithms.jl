@@ -6,6 +6,16 @@ function FVKTAlgorithm(;Θ=1.0)
   FVKTAlgorithm(Θ)
 end
 
+immutable FVTecnoAlgorithm <: AbstractFVAlgorithm
+  order :: Int
+  Nflux :: Function #Entropy stable 2 point flux
+  ve    :: Function #Entropy variable
+end
+
+function FVTecnoAlgorithm(Nflux;order=2.0, ve = u::Vector -> u)
+  FVTecnoAlgorithm(order, Nflux, ve)
+end
+
 function cdt(u::Matrix, CFL, dx,JacF)
   maxρ = 0
   N = size(u,1)

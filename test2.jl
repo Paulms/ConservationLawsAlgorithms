@@ -20,13 +20,17 @@ function u0_func(xx)
   return uinit
 end
 
+Nflux(ϕl::Vector, ϕr::Vector) = 0.5*(f(ϕl)+f(ϕr))
+
 N = 500
 mesh = Uniform1DFVMesh(N,-1.0,1.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 @time sol = solve(prob, FVKTAlgorithm();progressbar=true)
+@time sol2 = solve(prob, FVTecnoAlgorithm(Nflux);progressbar=true)
 
 #Plot
 using Plots
 plot(mesh.x, sol.u[1][:,1], lab="ho",line=(:dot,2))
 plot!(mesh.x, sol.u[end][:,1],lab="KT h")
+plot!(mesh.x, sol2.u[end][:,1],lab="Tecno h")
