@@ -103,12 +103,12 @@ function kv(v::Vector)
   K
 end
 function Ndiff(ϕl::Vector, ϕr::Vector)
-  if (sum(ϕl) < ϕc || sum(ϕr) < ϕc)
+  #if (sum(ϕl) < ϕc || sum(ϕr) < ϕc)
     M = size(ϕl,1)
     zeros(M,M)
-  else
-    kv(0.5*(ve(ϕl)+ve(ϕr)))
-  end
+  #else
+  #  kv(0.5*(ve(ϕl)+ve(ϕr)))
+  #end
 end
 
 N = 100
@@ -116,8 +116,8 @@ mesh = Uniform1DFVMesh(N,0.0,10.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsWithDiffusionProblem(u0,f,BB,CFL,Tend,mesh;Jf=Jf)
 @time sol = solve(prob, FVKTAlgorithm();progressbar=true)
-ϵ = 0.1*mesh.dx
-@time sol2 = solve(prob, FVESJPAlgorithm(Nflux,Ndiff;ϵ=ϵ);progressbar=true, TimeIntegrator=:RK4)
+ϵ = 0.2*mesh.dx
+@time sol2 = solve(prob, FVESJPAlgorithm(Nflux,Ndiff;ϵ=ϵ);progressbar=true, TimeIntegrator=:SSPRK33)
 
 #Plot
 using(Plots)

@@ -185,6 +185,38 @@ end
     #Fourth Step
     rhs!(rhs, uold+dt*rhs, N, M,dx, dt, bdtype)
     u = u + dt/6 *rhs
+  elseif (typeTIntegration == :SSPRK33)
+    rhs!(rhs, uold, N, M,dx, dt, bdtype)
+    tmp = uold + dt*rhs
+    rhs!(rhs, tmp, N, M,dx, dt, bdtype)
+    tmp = (3*uold + tmp + dt*k) / 4
+    rhs!(rhs, tmp, N, M,dx, dt/2, bdtype)
+    u = (uold + 2*tmp + 2*dt*k) / 3
+  elseif (typeTIntegration == :SSPRK104)
+    dt_6 = dt/6
+    dt_3 = dt/3
+    dt_2 = dt/2
+    rhs!(rhs, uold, N, M,dx, dt, bdtype)
+    tmp = uold + dt_6 * rhs # u₁
+    rhs!(rhs, tmp, N, M,dx, dt_6, bdtype)
+    tmp = tmp + dt_6 * rhs # u₂
+    rhs!(rhs, tmp, N, M,dx, dt_3, bdtype)
+    tmp = tmp + dt_6 * rhs # u₃
+    rhs!(rhs, tmp, N, M,dx, dt_2, bdtype)
+    u₄ = tmp + dt_6 * rhs # u₄
+    k₄ = zeros(rhs)
+    rhs!(k₄, u₄, N, M,dx, dt_3, bdtype)
+    tmp = (3*uold + 2*u₄ + 2*dt_6 * k₄) / 5 # u₅
+    rhs!(rhs, tmp, N, M,dx, dt_3, bdtype)
+    tmp = tmp + dt_6 * rhs # u₆
+    rhs!(rhs, tmp, N, M,dx, dt_2, bdtype)
+    tmp = tmp + dt_6 * rhs # u₇
+    rhs!(rhs, tmp, N, M,dx, 2*dt_3, bdtype)
+    tmp = tmp + dt_6 * rhs # u₈
+    rhs!(rhs, tmp, N, M,dx, 5*dt_6, bdtype)
+    tmp = tmp + dt_6 * rhs # u₉
+    rhs!(rhs, tmp, N, M,dx, dt, bdtype)
+    u = (uold + 9*(u₄ + dt_6*k₄) + 15*(tmp + dt_6*rhs)) / 25
   else
     throw("Time integrator not defined...")
   end
