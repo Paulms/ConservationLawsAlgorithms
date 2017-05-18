@@ -26,5 +26,5 @@ end
 
 function ConservationLawsWithDiffusionProblem(u0,f,BB,CFL,tend,mesh;Jf=nothing)
  numvars = size(u0,2)
- ConservationLawsProblem{typeof(mesh),typeof(f),typeof(Jf),typeof(CFL),typeof(tend),typeof(u0),typeof(BB)}(u0,f,Jf,CFL,tend,numvars,mesh,BB)
+ ConservationLawsWithDiffusionProblem{typeof(mesh),typeof(f),typeof(Jf),typeof(CFL),typeof(tend),typeof(u0),typeof(BB)}(u0,f,Jf,CFL,tend,numvars,mesh,BB)
 end

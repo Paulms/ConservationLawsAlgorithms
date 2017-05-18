@@ -108,35 +108,3 @@ function FV_solve{tType,uType,tendType,F,G}(integrator::FVIntegrator{FVTecnoAlgo
   end
   @fv_postamble
 end
-
-function FV_solve{tType,uType,tendType,F,G,B}(integrator::FVDiffIntegrator{FVTecnoAlgorithm,
-  Uniform1DFVMesh,tType,uType,tendType,F,G,B})
-  @fv_diffdeterministicpreamble
-  @fv_uniform1Dmeshpreamble
-  @fv_generalpreamble
-  @unpack order,Nflux,ve = integrator.alg
-
-  function rhs!(rhs, uold, N, M, dx, dt, bdtype)
-    #SEt ghost Cells
-    @tecno_order_header
-    @boundary_header
-    @tecno_rhs_header
-    # Diffusion
-    pp = zeros(N+1,M)
-    ∇u_ap = ∇u/dx#(uu[2:N,:]-uu[1:N-1,:])/dx
-    for j = 1:(N+1)
-      pp[j,:] = 0.5*(DiffMat(u𝚥(j))+DiffMat(u𝚥(j-1)))*∇u_ap[j,1:M]
-    end
-    @boundary_update
-    @update_rhs
-  end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
-end

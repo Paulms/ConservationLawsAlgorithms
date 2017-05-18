@@ -16,6 +16,16 @@ function FVTecnoAlgorithm(Nflux;order=2.0, ve = u::Vector -> u)
   FVTecnoAlgorithm(order, Nflux, ve)
 end
 
+immutable FVESJPAlgorithm <: AbstractFVAlgorithm
+  Nflux :: Function
+  Ndiff :: Function #Entropy stable 2 point flux
+  ϵ     :: Float64 #Entropy variable
+end
+
+function FVESJPAlgorithm(Nflux, Ndiff;ϵ=0.0)
+  FVESJPAlgorithm(Nflux, Ndiff, ϵ)
+end
+
 function cdt(u::Matrix, CFL, dx,JacF)
   maxρ = 0
   N = size(u,1)
@@ -70,7 +80,7 @@ end
 end
 @def fv_diffdeterministicpreamble begin
   @unpack u,Flux,DiffMat,Jf,CFL,t,M,numiters,typeTIntegration,tend,
-  save_everystep,ts,timeseries_steps,progressbar, progressbar_name = integrator
+  save_everystep,ts,timeseries,timeseries_steps,progressbar, progressbar_name = integrator
 end
 
 @def fv_deterministicpreamble begin
@@ -165,7 +175,7 @@ end
   elseif (typeTIntegration == :RK4)
     #FIRST Step
     rhs!(rhs, uold, N, M,dx, dt, bdtype)
-    u = old + dt/6*rhs
+    u = uold + dt/6*rhs
     #Second Step
     rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, bdtype)
     u = u + dt/3*rhs

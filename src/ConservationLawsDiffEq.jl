@@ -32,10 +32,11 @@ module ConservationLawsDiffEq
   include("KT_scheme.jl")
   include("ENO_rec.jl")
   include("Tecno_scheme.jl")
+  include("ESJP_scheme.jl")
 
   export solve
   export Uniform1DFVMesh
   export ConservationLawsProblem, ConservationLawsWithDiffusionProblem
-  export FVKTAlgorithm, FVTecnoAlgorithm
+  export FVKTAlgorithm, FVTecnoAlgorithm, FVESJPAlgorithm
   export get_L1_errors
 end
