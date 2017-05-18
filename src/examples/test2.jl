@@ -1,5 +1,5 @@
 # One dimensional wave equation
-include("./ConservationLawsDiffEq.jl")
+include("./../ConservationLawsDiffEq.jl")
 using ConservationLawsDiffEq
 
 const CFL = 0.45

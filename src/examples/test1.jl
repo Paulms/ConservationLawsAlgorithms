@@ -1,24 +1,18 @@
-include("./ConservationLawsDiffEq.jl")
+include("./../ConservationLawsDiffEq.jl")
 using ConservationLawsDiffEq
 
-#Euler Equations
-const CFL = 0.45
-const Tend = 1.3
-const λ=8.314472 #gas constant
+const CFL = 0.1
+const Tend = 0.2
+const gr = 9.8
 
 function Jf(u::Vector)
-  ρ = u[1]; v = u[2]/u[1]; ϵ=u[3]
-  p = (ϵ-0.5*ρ*v^2)*(λ-1)
-  F =[0.0 1.0 0.0;-v^2 2*v 0;(ϵ+p)*v/ρ 1/ρ*(ϵ+p) v]
+  h = u[1]
+  q = u[2]
+  F =[0.0 1.0;-q^2/h^2+gr*h 2*q/h]
   F
 end
 
-function f(u::Vector)
-  ρ = u[1]; v = u[2]/u[1]; ϵ=u[3]
-  p = (ϵ-0.5*ρ*v^2)*(λ-1)
-  [u[2];u[2]^2/u[1]+p;(ϵ+p)*v]
-end
-
+f(u::Vector) = [u[2];u[2]^2/u[1]+0.5*gr*u[1]^2]
 
 function u0_func(xx)
   N = size(xx,1)
