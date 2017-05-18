@@ -99,16 +99,16 @@ end
 function kv(v::Vector)
   M = size(v,1)
   w = sum(exp(Vmax.*v))
-  K = β(w)*diagm(Vmax.*exp(Vmax.*v))
+  K = β(w)*eye(M)#diagm(Vmax.*exp(Vmax.*v))
   K
 end
-function Ndiff(ϕl::Vector, ϕr::Vector)
-  #if (sum(ϕl) < ϕc || sum(ϕr) < ϕc)
-    M = size(ϕl,1)
+function Ndiff(vl::Vector, vr::Vector)
+  if (sum(exp(vl.*Vmax)) < ϕc || sum(exp(vr.*Vmax)) < ϕc)
+    M = size(vl,1)
     zeros(M,M)
-  #else
-  #  kv(0.5*(ve(ϕl)+ve(ϕr)))
-  #end
+  else
+    kv(0.5*(vl+vr))
+  end
 end
 
 N = 100
@@ -117,7 +117,7 @@ u0 = u0_func(mesh.x)
 prob = ConservationLawsWithDiffusionProblem(u0,f,BB,CFL,Tend,mesh;Jf=Jf)
 @time sol = solve(prob, FVKTAlgorithm();progressbar=true)
 ϵ = 0.2*mesh.dx
-@time sol2 = solve(prob, FVESJPAlgorithm(Nflux,Ndiff;ϵ=ϵ);progressbar=true, TimeIntegrator=:SSPRK33)
+@time sol2 = solve(prob, FVESJPAlgorithm(Nflux,Ndiff;ve=ve);progressbar=true, TimeIntegrator=:SSPRK33)
 
 #Plot
 using(Plots)

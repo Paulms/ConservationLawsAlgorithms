@@ -19,11 +19,20 @@ end
 immutable FVESJPAlgorithm <: AbstractFVAlgorithm
   Nflux :: Function
   Ndiff :: Function #Entropy stable 2 point flux
-  ϵ     :: Float64 #Entropy variable
+  ϵ     :: Float64 # Extra diffusion
 end
-
-function FVESJPAlgorithm(Nflux, Ndiff;ϵ=0.0)
-  FVESJPAlgorithm(Nflux, Ndiff, ϵ)
+immutable FVESJPeAlgorithm <: AbstractFVAlgorithm
+  Nflux :: Function
+  Ndiff :: Function #Entropy stable 2 point flux
+  ϵ     :: Float64
+  ve    :: Function #Entropy variable
+end
+function FVESJPAlgorithm(Nflux, Ndiff;ϵ=0.0,ve=nothing)
+  if ve != nothing
+    FVESJPeAlgorithm(Nflux, Ndiff, ϵ, ve)
+  else
+    FVESJPAlgorithm(Nflux, Ndiff, ϵ)
+  end
 end
 
 function cdt(u::Matrix, CFL, dx,JacF)
