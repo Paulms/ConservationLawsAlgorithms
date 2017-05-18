@@ -189,9 +189,9 @@ end
     rhs!(rhs, uold, N, M,dx, dt, bdtype)
     tmp = uold + dt*rhs
     rhs!(rhs, tmp, N, M,dx, dt, bdtype)
-    tmp = (3*uold + tmp + dt*k) / 4
+    tmp = (3*uold + tmp + dt*rhs) / 4
     rhs!(rhs, tmp, N, M,dx, dt/2, bdtype)
-    u = (uold + 2*tmp + 2*dt*k) / 3
+    u = (uold + 2*tmp + 2*dt*rhs) / 3
   elseif (typeTIntegration == :SSPRK104)
     dt_6 = dt/6
     dt_3 = dt/3
