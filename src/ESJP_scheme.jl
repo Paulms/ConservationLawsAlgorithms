@@ -57,7 +57,7 @@ function FV_solve{tType,uType,tendType,F,G,B}(integrator::FVDiffIntegrator{FVESJ
     # Numerical Fluxes
     hh = zeros(N+1,M)
     for j = 1:N+1
-      hh[j,:] = Nflux(u𝚥(j-1), u𝚥(j))
+      hh[j,:] = Nflux(ve(u𝚥(j-1)), ve(u𝚥(j)))
     end
     # Diffusion
     pp = zeros(N+1,M)
