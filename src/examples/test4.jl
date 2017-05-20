@@ -8,13 +8,13 @@ include("./../ConservationLawsDiffEq.jl")
 using ConservationLawsDiffEq
 
 # Parameters:
-const CFL = 0.2
+const CFL = 0.25
 const Tend = 0.2
 const ϕc = exp(-7/e)
 const M = 4
 const Vmax = [60.0,55.0,50.0,45.0]
 const wc = 50.0
-const CC = -e/7
+const CC = e/7
 const τ = 1e-3
 const κ = 1e-3
 const L = 0.03
@@ -42,7 +42,7 @@ function BB(ϕ::Vector)
     0.0
   else
     M = size(ϕ,1)
-    B = β(sum(ϕ))*eye(M)
+    B = β(ϕ)*eye(M)
     B
   end
 end
