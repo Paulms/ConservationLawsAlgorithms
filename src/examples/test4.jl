@@ -122,7 +122,7 @@ function Ndiff(vl::Vector, vr::Vector)
     zeros(M,M)
 end
 
-N = 100
+N = 500
 mesh = Uniform1DFVMesh(N,0.0,10.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsWithDiffusionProblem(u0,f,BB,CFL,Tend,mesh;Jf=Jf)
@@ -132,9 +132,11 @@ prob = ConservationLawsWithDiffusionProblem(u0,f,BB,CFL,Tend,mesh;Jf=Jf)
 
 #Plot
 using(Plots)
+#Plots.scalefontsizes(1.5)
 plot(mesh.x, sol.u[1], line=(:dot,2))
+plot!(mesh.x, [sum(sol.u[1][i,:]) for i=1:N],lab="u")
 plot(mesh.x, sol.u[end], line=(:dot,2))
-plot!(mesh.x, [sum(sol.u[end][i,:]) for i=1:N],lab="ϕ")
+plot!(mesh.x, [sum(sol.u[end][i,:]) for i=1:N],lab="u")
 #savefig("T4KTN500T02.png")
 
 plot(mesh.x, sol2.u[1], line=(:dot,2))
