@@ -1,5 +1,16 @@
+Test1
+After fixing boundary conditions
+Comp 2 N=200
+2.922274 seconds (18.58 M allocations: 1.562 GB, 5.87% gc time)
+ 1.175134 seconds (16.35 M allocations: 1.489 GB, 14.61% gc time)
+
 Test 2
 First time (17/05/2017)
 Comp 2, N = 500
 10.093153 seconds (83.07 M allocations: 5.319 GB, 6.54% gc time)
 7.243576 seconds (79.31 M allocations: 5.183 GB, 7.79% gc time)
+
+After fixing boundary conditions (22/05/2017)
+Comp 2 N = 500
+10.147685 seconds (110.30 M allocations: 7.269 GB, 7.24% gc time)
+8.609204 seconds (108.20 M allocations: 7.201 GB, 8.96% gc time)

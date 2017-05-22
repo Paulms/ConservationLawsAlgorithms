@@ -31,6 +31,11 @@ prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 @time sol = solve(prob, FVKTAlgorithm();progressbar=true)
 @time sol2 = solve(prob, FVTecnoAlgorithm(Nflux;order=3);progressbar=true)
 
+#writedlm("test_2_ktreference.txt", [mesh.x sol.u[end]], '\t')
+#writedlm("test_2_Tecnoreference.txt", [mesh.x sol2.u[end]], '\t')
+#reference = readdlm("test_2_ktreference.txt");
+#sum(abs(sol.u[end] - reference[:,2:end]))
+
 #get_L1_errors(sol, exact_sol)
 #get_L1_errors(sol2, exact_sol)
 #5.16

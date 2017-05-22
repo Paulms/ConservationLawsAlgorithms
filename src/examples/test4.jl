@@ -117,18 +117,42 @@ function Nediff(vl::Vector, vr::Vector)
     kv(0.5*(vl+vr))
   end
 end
-function Ndiff(vl::Vector, vr::Vector)
+
+function Nflux0(ϕl::Vector, ϕr::Vector)
+  F = zeros(ϕl)
+  ul = sum(ϕl); ur = sum(ϕr)
+  F = 0.5*(ϕl+ϕr).*Vmax*VV(0.5*(ul+ur))
+  return(F)
+end
+function Nflux1(ϕl::Vector, ϕr::Vector)
+  F = zeros(ϕl)
+  ul = sum(ϕl); ur = sum(ϕr)
+  F = ϕl.*Vmax*VV(ur)
+  return(F)
+end
+function Nflux2(ϕl::Vector, ϕr::Vector)
+  F = zeros(ϕl)
+  ul = sum(ϕl); ur = sum(ϕr)
+  F = ϕl.*Vmax*VV(0.5*(ur+ul))
+  return(F)
+end
+function Nediff0(vl::Vector, vr::Vector)
     M = size(vl,1)
     zeros(M,M)
 end
+function Neflux2(wl::Vector, wr::Vector)
+  Nflux2(exp(Vmax.*wl),exp(Vmax.*wr))
+end
 
-N = 500
+
+N = 100
 mesh = Uniform1DFVMesh(N,0.0,10.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsWithDiffusionProblem(u0,f,BB,CFL,Tend,mesh;Jf=Jf)
 @time sol = solve(prob, FVKTAlgorithm();progressbar=true)
 ϵ = 0.2*mesh.dx
-@time sol2 = solve(prob, FVESJPAlgorithm(Neflux,Nediff;ve=ve,ϵ=ϵ);progressbar=true, TimeIntegrator=:SSPRK33)
+@time sol2 = solve(prob, FVESJPAlgorithm(Nflux2,Nediff0;ϵ=ϵ);progressbar=true, TimeIntegrator=:SSPRK33)
+@time sol2 = solve(prob, FVESJPAlgorithm(Neflux2,Nediff;ve=ve,ϵ=ϵ);progressbar=true, TimeIntegrator=:SSPRK33)
 
 #Plot
 using(Plots)

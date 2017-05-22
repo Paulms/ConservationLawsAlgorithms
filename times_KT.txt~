@@ -21,7 +21,5 @@ After OffsetArrays and u𝚥(j)
 Comp 2 N=500
  11.291968 seconds (164.42 M allocations: 8.782 GB, 8.31% gc time)
   5.398935 seconds (152.98 M allocations: 8.510 GB, 16.79% gc time)
-After fixing boundary conditions (22/05/2017)
-Comp 2 N = 500
-9.151426 seconds (159.60 M allocations: 8.686 GB, 9.74% gc time)
-5.370371 seconds (152.77 M allocations: 8.504 GB, 16.24% gc time)
+After fixing boundary conditions
+Comp 2 N=200
