@@ -12,6 +12,10 @@ Comp 2 N=200
 4.971817 seconds (30.76 M allocations: 2.234 GB, 4.81% gc time)
 1.472710 seconds (24.68 M allocations: 2.080 GB, 18.94% gc time)
 
+Comp 1 N=200
+6.279510 seconds (25.13 M allocations: 2.145 GB, 3.50% gc time)
+1.807029 seconds (19.13 M allocations: 1.991 GB, 11.90% gc time)
+
 Test 2
 After OffsetArrays
 Comp 2 N=500
@@ -25,3 +29,7 @@ After fixing boundary conditions (22/05/2017)
 Comp 2 N = 500
 9.151426 seconds (159.60 M allocations: 8.686 GB, 9.74% gc time)
 5.370371 seconds (152.77 M allocations: 8.504 GB, 16.24% gc time)
+
+Comp 1 N =500
+9.744340 seconds (124.56 M allocations: 8.044 GB, 7.41% gc time)
+6.551664 seconds (118.54 M allocations: 7.889 GB, 14.19% gc time)
