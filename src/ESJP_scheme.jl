@@ -22,12 +22,12 @@ function FV_solve{tType,uType,tendType,F,G,B}(integrator::FVDiffIntegrator{FVESJ
     # Numerical Fluxes
     hh = zeros(N+1,M)
     for j = 1:N+1
-      hh[j,:] = Nflux(u𝚥(j-1), u𝚥(j))
+      hh[j,:] = Nflux(uu[j-1,:], uu[j,:])
     end
     # Diffusion
     pp = zeros(N+1,M)
     for j = 1:N+1
-      pp[j,:] = 1/dx*(Ndiff(u𝚥(j-1), u𝚥(j))*(u𝚥(j)-u𝚥(j-1))+ ϵ*(u𝚥(j)-u𝚥(j-1)))
+      pp[j,:] = 1/dx*(Ndiff(uu[j-1,:], uu[j,:])*(uu[j,:]-uu[j-1,:])+ ϵ*(uu[j,:]-uu[j-1,:]))
     end
     @boundary_update
     @update_rhs
@@ -57,13 +57,13 @@ function FV_solve{tType,uType,tendType,F,G,B}(integrator::FVDiffIntegrator{FVESJ
     # Numerical Fluxes
     hh = zeros(N+1,M)
     for j = 1:N+1
-      hh[j,:] = Nflux(ve(u𝚥(j-1)), ve(u𝚥(j)))
+      hh[j,:] = Nflux(ve(uu[j-1,:]), ve(uu[j,:]))
     end
     # Diffusion
     pp = zeros(N+1,M)
     for j = 1:N+1
-      vdiff = ve(u𝚥(j))-ve(u𝚥(j-1))
-      pp[j,:] = 1/dx*(Ndiff(ve(u𝚥(j-1)), ve(u𝚥(j)))*vdiff+ ϵ*vdiff)
+      vdiff = ve(uu[j,:])-ve(uu[j-1,:])
+      pp[j,:] = 1/dx*(Ndiff(ve(uu[j-1,:]), ve(uu[j,:]))*vdiff+ ϵ*vdiff)
     end
     @boundary_update
     @update_rhs
