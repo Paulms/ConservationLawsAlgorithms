@@ -13,6 +13,10 @@ Comp 1 N = 200
 3.700021 seconds (13.16 M allocations: 1.413 GB, 4.59% gc time)
 1.319058 seconds (10.95 M allocations: 1.337 GB, 11.45% gc time)
 
+Comp 2 N=200
+2.773509 seconds (17.01 M allocations: 1.475 GB, 8.05% gc time)
+1.076080 seconds (14.80 M allocations: 1.400 GB, 13.16% gc time)
+
 
 Test 2
 First time (17/05/2017)
@@ -33,3 +37,7 @@ After Custom Arrays (22/05/2017)
 Comp 1 N = 500
 11.321028 seconds (73.30 M allocations: 6.195 GB, 5.10% gc time)
 10.106005 seconds (71.18 M allocations: 6.123 GB, 6.48% gc time)
+
+Comp 2 N = 500
+9.386888 seconds (99.64 M allocations: 6.655 GB, 7.04% gc time)
+ 8.133094 seconds (97.61 M allocations: 6.586 GB, 9.09% gc time)
