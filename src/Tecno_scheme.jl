@@ -21,13 +21,13 @@
 end
 @def tecno_rhs_header begin
   #Eno Reconstrucion
-  RΛ1 = eigfact(Jf(0.5*(u𝚥(0)+u𝚥(1))))
+  RΛ1 = eigfact(Jf(0.5*(uu[0,:]+uu[1,:])))
   MatR = Vector{typeof(RΛ1.vectors)}(0)
   MatΛ = Vector{typeof(RΛ1.values)}(0)
   push!(MatR,RΛ1.vectors)
   push!(MatΛ,RΛ1.values)
   for j = 2:(N+1)
-    RΛj = eigfact(Jf(0.5*(u𝚥(j-1)+u𝚥(j))))
+    RΛj = eigfact(Jf(0.5*(uu[j-1,:]+uu[j,:])))
     push!(MatR,RΛj.vectors); push!(MatΛ,RΛj.values)
   end
   dd = zeros(N+1,M) #Extra numerical diffusion
@@ -35,7 +35,7 @@ end
   weights = unif_crj(order)
   v = zeros(uu)
   for j = indices(v, 1)
-    v[j,1:M] = ve(u𝚥(j)) #entropy variables
+    v[j,1:M] = ve(uu[j,:]) #entropy variables
   end
   vminus = zeros(N,M)
   vplus = zeros(N,M)
@@ -66,15 +66,15 @@ end
   ff = zeros(N+1,M)
   if order == 2
     for j = 1:(N+1)
-      ff[j,:] = Nflux(u𝚥(j-1),u𝚥(j))
+      ff[j,:] = Nflux(uu[j-1,:],uu[j,:])
     end
   elseif order == 3 || order == 4
     for j = 1:(N+1)
-      ff[j,:] = 4.0/3.0*Nflux(u𝚥(j-1),u𝚥(j))-1.0/6.0*(Nflux(u𝚥(j-2),u𝚥(j))+Nflux(u𝚥(j-1),u𝚥(j+1)))
+      ff[j,:] = 4.0/3.0*Nflux(uu[j-1,:],uu[j,:])-1.0/6.0*(Nflux(uu[j-2,:],uu[j,:])+Nflux(uu[j-1,:],uu[j+1,:]))
     end
   elseif order == 5
-    ff[j,:] = 3.0/2.0*Nflux(u𝚥(j-1),u𝚥(j))-3.0/10.0*(Nflux(u𝚥(j-2),u𝚥(j))+Nflux(u𝚥(j-1),u𝚥(j+1)))+
-    1.0/30.0*(Nflux(u𝚥(j-3),u𝚥(j))+Nflux(u𝚥(j-2),u𝚥(j+1))+Nflux(u𝚥(j-1),u𝚥(j+2)))
+    ff[j,:] = 3.0/2.0*Nflux(uu[j-1,:],uu[j,:])-3.0/10.0*(Nflux(uu[j-2,:],uu[j,:])+Nflux(uu[j-1,:],uu[j+1,:]))+
+    1.0/30.0*(Nflux(uu[j-3,:],uu[j,:])+Nflux(uu[j-2,:],uu[j+1,:])+Nflux(uu[j-1,:],uu[j+2,:]))
   end
 
   hh = zeros(N+1,M)

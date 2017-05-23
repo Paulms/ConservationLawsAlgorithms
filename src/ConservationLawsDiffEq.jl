@@ -3,7 +3,7 @@ module ConservationLawsDiffEq
   using DiffEqBase, DiffEqPDEBase
 
   using Parameters, Compat, Juno
-  using ForwardDiff, OffsetArrays, Interpolations
+  using ForwardDiff, Interpolations
 
   # Interfaces
   import DiffEqBase: solve, @def
@@ -27,6 +27,7 @@ module ConservationLawsDiffEq
   include("solutions.jl")
   include("fv_solve.jl")
   include("errors.jl")
+  include("ArrayUtils.jl")
 
   #Algoritms
   include("KT_scheme.jl")

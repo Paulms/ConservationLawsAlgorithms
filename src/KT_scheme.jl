@@ -55,15 +55,15 @@
     FΦr[j,:] = Flux(Φ_r[j,:])
     FΦl[j,:] = Flux(Φ_l[j,:])
     if (abs(aa[j]) > 1e-6)
-      Ψr[j,:] = 0.5*(u𝚥(j-1)+u𝚥(j))+(1-λ*aa[j])/4*(∇u[j-1,1:M]-∇u[j,1:M])-1/(2*aa[j])*
+      Ψr[j,:] = 0.5*(uu[j-1,:]+uu[j,:])+(1-λ*aa[j])/4*(∇u[j-1,1:M]-∇u[j,1:M])-1/(2*aa[j])*
       (FΦr[j,:]-FΦl[j,:])
     else
-      Ψr[j,:] = 0.5*(u𝚥(j-1)+u𝚥(j))
+      Ψr[j,:] = 0.5*(uu[j-1,:]+uu[j,:])
     end
   end
   Ψ = zeros(uu)
   for j = 1:N
-    Ψ[j,1:M] = u𝚥(j) - λ/2*(aa[j+1]-aa[j])*∇u[j,1:M]-λ/(1-λ*(aa[j+1]+aa[j]))*
+    Ψ[j,1:M] = uu[j,:] - λ/2*(aa[j+1]-aa[j])*∇u[j,1:M]-λ/(1-λ*(aa[j+1]+aa[j]))*
     (FΦl[j+1,:]-FΦr[j,:])
   end
   # Discrete derivatives
@@ -79,7 +79,7 @@
   # Numerical Fluxes
   hh = zeros(N+1,M)
   for j = 1:(N+1)
-    hh[j,:] = 0.5*(FΦr[j,:]+FΦl[j,:])-0.5*(u𝚥(j)-u𝚥(j-1))*aa[j]+
+    hh[j,:] = 0.5*(FΦr[j,:]+FΦl[j,:])-0.5*(uu[j,:]-uu[j-1,:])*aa[j]+
     aa[j]*(1-λ*aa[j])/4*(∇u[j,1:M]+∇u[j-1,1:M]) + λ*dx/2*(aa[j])^2*∇Ψ[j,:]
   end
   if bdtype == :ZERO_FLUX
@@ -131,7 +131,7 @@ function FV_solve{tType,uType,tendType,F,G,B}(integrator::FVDiffIntegrator{FVKTA
     pp = zeros(N+1,M)
     ∇u_ap = ∇u/dx#(uu[2:N,:]-uu[1:N-1,:])/dx
     for j = 1:(N+1)
-      pp[j,:] = 0.5*(DiffMat(u𝚥(j))+DiffMat(u𝚥(j-1)))*∇u_ap[j,1:M]
+      pp[j,:] = 0.5*(DiffMat(uu[j,:])+DiffMat(uu[j-1,:]))*∇u_ap[j,1:M]
     end
     if bdtype == :ZERO_FLUX
       pp[1,:] = 0.0_dp; pp[N+1,:] = 0.0_dp

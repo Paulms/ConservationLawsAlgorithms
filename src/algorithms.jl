@@ -133,25 +133,11 @@ end
 end
 
 @def boundary_header begin
-  uu = OffsetArray(eltype(uold), (-ngc+1):(N+ngc),1:M)
-  uu[(-ngc+1):(N+ngc),1:M] = zero(eltype(uold))
-  uu[1:N,1:M] = uold
+  uu = copy(uold)
   if bdtype == :PERIODIC
-    for i = (-ngc+1):0
-      uu[i,1:M] = uold[N+i,:]
-      uu[N+ngc+i,1:M] = uold[i+ngc,:]
-    end
+    uu = PeriodicMatrix(uu)
   elseif bdtype == :ZERO_FLUX
-    for i = (-ngc+1):0
-      uu[i,1:M] = uold[1,:]
-      uu[N+ngc+i,1:M] = uold[end,:]
-    end
-  end
-  # TODO: use it until OffsetArrays support size and common operations
-  function u𝚥(j::Int)
-    temp = zeros(M)
-    temp[:] = uu[j,1:M]
-    return(temp)
+    uu = ZeroFluxMatrix(uu)
   end
 end
 
