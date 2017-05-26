@@ -76,3 +76,147 @@ function ENO_rec(xloc::Vector,vloc::Vector,k::Int, crj::Matrix)
   end
   return(vl,vr)
 end
+
+#WEno reconstruction for uniform mesh
+#Order available: 1, 3, 5
+function WENO_urec(dx,vloc::Vector,order::Int;ɛ = 1e-12)
+  vl = zero(eltype(vloc))
+  vr = zero(eltype(vloc))
+  N = size(vloc,1)
+  if (N != order)
+    throw("dimension of vloc is not consistent with order $order WENO")
+  end
+  k = Int((order + 1)/2)
+  #Special case k = 1
+  if (k == 1)
+    vl = vloc[1]; vr = vloc[1]
+    return vl, vr
+  end
+
+  # Apply WENO procedure
+  αl = zeros(k); αr = zeros(k);
+  ωl = zeros(k); ωr = zeros(k);
+  βk = zeros(k); dr = zeros(k);
+
+  # Compute k values of xl and xr based on different stencils
+  ulr = zeros(k); urr = zeros(k);
+  crj = unif_crj(k)
+  for r=0:(k-1)
+      for i=0:k-1
+          urr[r+1] = urr[r+1] + crj[r+2,i+1]*vloc[k-r+i];
+          ulr[r+1] = ulr[r+1] + crj[r+1,i+1]*vloc[k-r+i];
+      end
+  end
+
+  # Set up WENO coefficients for different orders - 2k-1
+  if (k==2)
+      dr = [2/3,1/3]
+      βk = [(vloc[3]-vloc[2])^2, (vloc[2]-vloc[1])^2]
+  elseif (k==3)
+      dr = [3/10, 3/5, 1/10]
+      βk = [13/12*(vloc[3]-2*vloc[4]+vloc[5])^2 + 1/4*(3*vloc[3]-4*vloc[4]+vloc[5])^2,
+      13/12*(vloc[2]-2*vloc[3]+vloc[4])^2 + 1/4*(vloc[2]-vloc[4])^2,
+      13/12*(vloc[1]-2*vloc[2]+vloc[3])^2 + 1/4*(3*vloc[3]-4*vloc[2]+vloc[1])^2]
+  else
+    throw("WENO reconstruction of order $order is not implemented yet!")
+  end
+
+  # Compute α parameters
+  for r=1:k
+      αr[r] = dr[r]/(ɛ+βk[r])^2;
+      αl[r] = dr[k+1-r]/(ɛ+βk[r])^2;
+  end
+
+  # Compute wENO weights parameters
+  for r=1:k
+      ωl[r] = αl[r]/sum(αl);
+      ωr[r] = αr[r]/sum(αr);
+  end
+
+  # Compute cell interface values
+  for r=1:k
+      vl = vl + ωl[r]*ulr[r];
+      vr = vr + ωr[r]*urr[r];
+  end
+  return(vl,vr)
+end
+
+#Mapped WEno reconstruction for uniform mesh
+#Reference:
+# A. Henrick, T. Aslam, J. Powers, Mapped weighted essentially non-oscillatory
+# schemes: Achiving optimal order near critical points
+function MWENO_urec(dx,vloc::Vector,order::Int;ɛ = 1e-12)
+  vl = zero(eltype(vloc))
+  vr = zero(eltype(vloc))
+  N = size(vloc,1)
+  if (N != order)
+    throw("dimension of vloc is not consistent with order $order WENO")
+  end
+  k = Int((order + 1)/2)
+  #Special case k = 1
+  if (k == 1)
+    vl = vloc[1]; vr = vloc[1]
+    return vl, vr
+  end
+
+  # Apply WENO procedure
+  αl = zeros(k); αr = zeros(k);
+  ωl = zeros(k); ωr = zeros(k);
+  αml = zeros(k); αmr = zeros(k);
+  ωml = zeros(k); ωmr = zeros(k);
+  βk = zeros(k); dr = zeros(k);
+
+  # Compute k values of xl and xr based on different stencils
+  ulr = zeros(k); urr = zeros(k);
+  crj = unif_crj(k)
+  for r=0:(k-1)
+      for i=0:k-1
+          urr[r+1] = urr[r+1] + crj[r+2,i+1]*vloc[k-r+i];
+          ulr[r+1] = ulr[r+1] + crj[r+1,i+1]*vloc[k-r+i];
+      end
+  end
+
+  # Set up WENO coefficients for different orders - 2k-1
+  if (k==2)
+      dr = [2/3,1/3]
+      βk = [(vloc[3]-vloc[2])^2, (vloc[2]-vloc[1])^2]
+  elseif (k==3)
+      dr = [3/10, 3/5, 1/10]
+      βk = [13/12*(vloc[3]-2*vloc[4]+vloc[5])^2 + 1/4*(3*vloc[3]-4*vloc[4]+vloc[5])^2,
+      13/12*(vloc[2]-2*vloc[3]+vloc[4])^2 + 1/4*(vloc[2]-vloc[4])^2,
+      13/12*(vloc[1]-2*vloc[2]+vloc[3])^2 + 1/4*(3*vloc[3]-4*vloc[2]+vloc[1])^2]
+  else
+    throw("WENO reconstruction of order $order is not implemented yet!")
+  end
+
+  # Compute α parameters
+  for r=1:k
+      αr[r] = dr[r]/(ɛ+βk[r])^2;
+      αl[r] = dr[k+1-r]/(ɛ+βk[r])^2;
+  end
+
+  # Compute wENO weights parameters
+  for r=1:k
+      ωl[r] = αl[r]/sum(αl);
+      ωr[r] = αr[r]/sum(αr);
+  end
+  #mapping function
+  gk(ω) = ω.*(dr+dr.^2-3*dr.*ω+ω.^2)./(dr.^2+ω.*(1-2*dr))
+
+  # Compute α mapped parameters
+  αmr[r] = gk(ωr)
+  αml[r] = gk(ωl)
+
+  # Compute mapped wENO weights parameters
+  for r=1:k
+      ωml[r] = αml[r]/sum(αml);
+      ωmr[r] = αmr[r]/sum(αmr);
+  end
+
+  # Compute cell interface values
+  for r=1:k
+      vl = vl + ωml[r]*ulr[r];
+      vr = vr + ωmr[r]*urr[r];
+  end
+  return(vl,vr)
+end
