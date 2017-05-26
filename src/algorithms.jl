@@ -160,7 +160,7 @@ end
   if (typeTIntegration == :FORWARD_EULER)
     rhs!(rhs, uold, N, M,dx, dt, bdtype)
     u = uold + dt*rhs
-  elseif (typeTIntegration == :TVD_RK2)
+  elseif (typeTIntegration == :SSPRK22)
     #FIRST Step
     rhs!(rhs, uold, N, M,dx, dt, bdtype)
     u = 0.5*(uold + dt*rhs)

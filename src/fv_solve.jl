@@ -6,7 +6,7 @@ function solve(
   timeseries_steps::Int = 100,
   save_everystep::Bool = false,
   iterations=100000000,
-  TimeIntegrator=:TVD_RK2,
+  TimeIntegrator=:SSPRK22,
   progressbar::Bool=false,progressbar_name="FV",kwargs...)
 
   #Unroll some important constants
@@ -43,7 +43,7 @@ function solve(
   timeseries_steps::Int = 100,
   save_everystep::Bool = false,
   iterations=100000000,
-  TimeIntegrator=:TVD_RK2,
+  TimeIntegrator=:SSPRK22,
   progressbar::Bool=false,progressbar_name="FV",kwargs...)
 
   #Unroll some important constants
