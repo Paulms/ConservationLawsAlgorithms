@@ -204,8 +204,8 @@ function MWENO_urec(dx,vloc::Vector,order::Int;ɛ = 1e-12)
   gk(ω) = ω.*(dr+dr.^2-3*dr.*ω+ω.^2)./(dr.^2+ω.*(1-2*dr))
 
   # Compute α mapped parameters
-  αmr[r] = gk(ωr)
-  αml[r] = gk(ωl)
+  αmr = gk(ωr)
+  αml = gk(ωl)
 
   # Compute mapped wENO weights parameters
   for r=1:k
