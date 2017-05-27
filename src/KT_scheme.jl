@@ -1,3 +1,11 @@
+immutable FVKTAlgorithm <: AbstractFVAlgorithm
+  Θ :: Float64
+end
+
+function FVKTAlgorithm(;Θ=1.0)
+  FVKTAlgorithm(Θ)
+end
+
 # Numerical Fluxes
 #   1   2   3          N-1  N
 # |---|---|---|......|---|---|

@@ -3,6 +3,25 @@
 # equations. 2017. Society for Industrial and Applied Mathematics. SIAM. Vol. 55.
 # No. 1. pp. 240-264
 
+immutable FVESJPAlgorithm <: AbstractFVAlgorithm
+  Nflux :: Function
+  Ndiff :: Function #Entropy stable 2 point flux
+  ϵ     :: Float64 # Extra diffusion
+end
+immutable FVESJPeAlgorithm <: AbstractFVAlgorithm
+  Nflux :: Function
+  Ndiff :: Function #Entropy stable 2 point flux
+  ϵ     :: Float64
+  ve    :: Function #Entropy variable
+end
+function FVESJPAlgorithm(Nflux, Ndiff;ϵ=0.0,ve=nothing)
+  if ve != nothing
+    FVESJPeAlgorithm(Nflux, Ndiff, ϵ, ve)
+  else
+    FVESJPAlgorithm(Nflux, Ndiff, ϵ)
+  end
+end
+
 # Numerical Fluxes
 #   1   2   3          N-1  N
 # |---|---|---|......|---|---|

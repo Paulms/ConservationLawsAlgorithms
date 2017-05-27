@@ -31,13 +31,15 @@ module ConservationLawsDiffEq
 
   #Algoritms
   include("KT_scheme.jl")
-  include("ENO_rec.jl")
+  include("ENO_WENO.jl")
   include("Tecno_scheme.jl")
   include("ESJP_scheme.jl")
+  include("WENO_Scheme.jl")
 
   export solve
   export Uniform1DFVMesh
   export ConservationLawsProblem, ConservationLawsWithDiffusionProblem
   export FVKTAlgorithm, FVTecnoAlgorithm, FVESJPAlgorithm
+  export FVCompWENOAlgorithm, FVCompMWENOAlgorithm
   export get_L1_errors
 end

@@ -31,14 +31,25 @@ The time integration of the semi discrete form is performed with methods like st
 * Problem types: System of Conservation Laws without (`ConservationLawsProblem`) and with diffusion term (`ConservationLawsWithDiffusionProblem`).
 
 * Algorithms
+TECNO Schemes
+
+U. Fjordholm, S. Mishra, E. Tadmor, *Arbitrarly high-order accurate entropy stable essentially nonoscillatory schemes for systems of conservation laws*. 2012. SIAM. vol. 50. No 2. pp. 544-573
 
 High-Resolution Central Schemes:
 
-Kurganov, Tadmor, *New High-Resolution Central Schemes for Nonlinear Conservation Laws and Convection–Diffusion Equations, Journal of Computational Physics*, Vol 160, issue 1, 1 May 2000, Pages 241-282
+Kurganov, Tadmor, *New High-Resolution Central Schemes for Nonlinear Conservation Laws and Convection–Diffusion Equations*, Journal of Computational Physics, Vol 160, issue 1, 1 May 2000, Pages 241-282
+
+Component Wise Weighted Essentially Non-Oscilaroty (WENO-LF)
+
+C.-W. Shu, *High order weighted essentially non-oscillatory schemes for convection dominated problems*, SIAM Review, 51:82-126, (2009).
+
+Component Wise Mapped WENO
+
+A. Henrick, T. Aslam, J. Powers, *Mapped weighted essentially non-oscillatory schemes: Achiving optimal order near critical points*. Journal of Computational Physics. Vol 207. 2005. Pages 542-567
 
 * Time integration methods:
 
-At the moment available methods are: Forward Euler, TVD Runge Kutta 2 (default), Runge-Kutta 4.
+At the moment available methods are: Forward Euler (`FORWARD_EULER`), Strong Stability Preserving Runge Kutta 2 (`SSPRK22`, default), `SSPRK33`, `SSPRK104`, Runge-Kutta 4 (`RK4`).
 
 ## Example
 Hyperbolic Shallow Water system with flat bottom:
@@ -83,7 +94,7 @@ u0 = u0_func(mesh.x)
 #Setup problem:
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 #Solve problem using Kurganov-Tadmor scheme
-@time sol = solve(prob, FVKTAlgorithm();progressbar=true)
+@time sol = solve(prob, FVKTAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
 
 #Plot
 using Plots

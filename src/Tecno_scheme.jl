@@ -3,6 +3,16 @@
 # stable essentially nonoscillatory schemes for systems of conservation laws.
 # 2012. SIAM. vol. 50. No 2. pp. 544-573
 
+immutable FVTecnoAlgorithm <: AbstractFVAlgorithm
+  order :: Int
+  Nflux :: Function #Entropy stable 2 point flux
+  ve    :: Function #Entropy variable
+end
+
+function FVTecnoAlgorithm(Nflux;order=2.0, ve = u::Vector -> u)
+  FVTecnoAlgorithm(order, Nflux, ve)
+end
+
 # Numerical Fluxes
 #   1   2   3          N-1  N
 # |---|---|---|......|---|---|
