@@ -11,18 +11,20 @@
 
 immutable FVCompWENOAlgorithm <: AbstractFVAlgorithm
   order :: Int
+  splitting :: Symbol #Splitting strategy local Lax-Friedrichs (LLF) or global
 end
 
-function FVCompWENOAlgorithm(;order=5)
-  FVCompWENOAlgorithm(order)
+function FVCompWENOAlgorithm(;order=5, splitting = :GLF)
+  FVCompWENOAlgorithm(order, splitting)
 end
 
 immutable FVCompMWENOAlgorithm <: AbstractFVAlgorithm
   order :: Int
+  splitting :: Symbol
 end
 
-function FVCompMWENOAlgorithm(;order=5)
-  FVCompMWENOAlgorithm(order)
+function FVCompMWENOAlgorithm(;order=5, splitting = :GLF)
+  FVCompMWENOAlgorithm(order, splitting)
 end
 
 # Numerical Fluxes
@@ -36,6 +38,22 @@ end
   for j = 1:N
     fminus[j,:] = 0.5*(Flux(uu[j,:])-α*uu[j,:])
     fplus[j,:] = 0.5*(Flux(uu[j,:])+α*uu[j,:])
+  end
+end
+
+@def local_lax_flux begin
+  # Lax Friedrichs flux splitting
+  αk = zeros(N)
+  αl = fluxρ(uu[0,:])
+  for j = 1:N
+    αr = fluxρ(uu[j,:])
+    αk = max(αl, αr)
+    αl = αr
+  end
+  fminus = zeros(uu); fplus = zeros(uu)
+  for j = 1:N
+    fminus[j,:] = 0.5*(Flux(uu[j,:])-αk[j]*uu[j,:])
+    fplus[j,:] = 0.5*(Flux(uu[j,:])+αk[j]*uu[j,:])
   end
 end
 
@@ -55,13 +73,19 @@ function FV_solve{tType,uType,tendType,F,G}(integrator::FVIntegrator{FVCompWENOA
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
-  @unpack order = integrator.alg
+  @unpack order, splitting = integrator.alg
   α = 0.0
   k = Int((order + 1)/2)-1
   crj = unif_crj(k+1)
   function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     @boundary_header
-    @global_lax_flux
+    if splitting == :GLF
+      @global_lax_flux
+    elseif spliting == :LLF
+      @local_lax_flux
+    else
+      throw("Splitting strategy not supported...")
+    end
     @weno_rhs_header
     # Diffusion
     pp = zeros(N+1,M)
@@ -96,13 +120,19 @@ function FV_solve{tType,uType,tendType,F,G}(integrator::FVIntegrator{FVCompMWENO
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
-  @unpack order = integrator.alg
+  @unpack order, splitting = integrator.alg
   α = 0.0
   k = Int((order + 1)/2)-1
   crj = unif_crj(k+1)
   function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     @boundary_header
-    @global_lax_flux
+    if splitting == :GLF
+      @global_lax_flux
+    elseif spliting == :LLF
+      @local_lax_flux
+    else
+      throw("Splitting strategy not supported...")
+    end
     @mweno_rhs_header
     # Diffusion
     pp = zeros(N+1,M)
