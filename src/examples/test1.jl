@@ -44,6 +44,7 @@ prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 @time sol2 = solve(prob, FVTecnoAlgorithm(Nflux;ve = ve, order=3);progressbar=true)
 @time sol3 = solve(prob, FVCompWENOAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
 @time sol4 = solve(prob, FVCompMWENOAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
+@time sol5 = solve(prob, FVSpecMWENOAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
 #writedlm("test_1_ktreference.txt", [mesh.x sol.u[end]], '\t')
 #writedlm("test_1_Tecnoreference.txt", [mesh.x sol2.u[end]], '\t')
 #reference = readdlm("test_1_ktreference.txt");

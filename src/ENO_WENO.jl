@@ -201,7 +201,7 @@ function WENO_pm_rec(vmloc::Vector, vploc::Vector,order::Int;ɛ = 1e-12, crj = n
       vl = vl + ωl[r]*ulr[r];
       vr = vr + ωr[r]*urr[r];
   end
-  return(vl+vr)
+  return(vl,vr)
 end
 
 
@@ -354,5 +354,5 @@ function MWENO_pm_rec(vmloc::Vector,vploc::Vector,order::Int;ɛ = 1e-12, crj=not
       vl = vl + ωml[r]*ulr[r];
       vr = vr + ωmr[r]*urr[r];
   end
-  return(vl+vr)
+  return(vl,vr)
 end
