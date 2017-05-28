@@ -42,11 +42,10 @@ end
 #Component Wise WENO algorithms
 @def weno_rhs_header begin
   #WEno Reconstrucion
-  k = Int((order + 1)/2)-1
   hh = zeros(N+1,M)
   for j = 0:N
     for i = 1:M
-      hh[j+1,i] = WENO_pm_rec(fminus[j-k+1:j+k+1,i],fplus[j-k:j+k,i],order)
+      hh[j+1,i] = WENO_pm_rec(fminus[j-k+1:j+k+1,i],fplus[j-k:j+k,i],order; crj = crj)
     end
   end
 end
@@ -58,6 +57,8 @@ function FV_solve{tType,uType,tendType,F,G}(integrator::FVIntegrator{FVCompWENOA
   @fv_generalpreamble
   @unpack order = integrator.alg
   α = 0.0
+  k = Int((order + 1)/2)-1
+  crj = unif_crj(k+1)
   function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     @boundary_header
     @global_lax_flux
@@ -82,11 +83,10 @@ end
 #Component Wise Mapped WENO algorithms
 @def mweno_rhs_header begin
   #Mapped WEno Reconstrucion
-  k = Int((order + 1)/2)-1
   hh = zeros(N+1,M)
   for j = 0:N
     for i = 1:M
-      hh[j+1,i] = MWENO_pm_rec(fminus[j-k+1:j+k+1,i],fplus[j-k:j+k,i],order)
+      hh[j+1,i] = MWENO_pm_rec(fminus[j-k+1:j+k+1,i],fplus[j-k:j+k,i],order; crj = crj)
     end
   end
 end
@@ -98,6 +98,8 @@ function FV_solve{tType,uType,tendType,F,G}(integrator::FVIntegrator{FVCompMWENO
   @fv_generalpreamble
   @unpack order = integrator.alg
   α = 0.0
+  k = Int((order + 1)/2)-1
+  crj = unif_crj(k+1)
   function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     @boundary_header
     @global_lax_flux

@@ -95,7 +95,7 @@ end
   return βk, dr
 end
 
-function WENO_urec(vloc::Vector,order::Int;ɛ = 1e-12)
+function WENO_urec(vloc::Vector,order::Int;ɛ = 1e-12, crj = nothing)
   vl = zero(eltype(vloc))
   vr = zero(eltype(vloc))
   N = size(vloc,1)
@@ -116,7 +116,9 @@ function WENO_urec(vloc::Vector,order::Int;ɛ = 1e-12)
 
   # Compute k values of xl and xr based on different stencils
   ulr = zeros(k); urr = zeros(k);
-  crj = unif_crj(k)
+  if crj == nothing
+    crj = unif_crj(k)
+  end
   for r=0:(k-1)
       for i=0:k-1
           urr[r+1] = urr[r+1] + crj[r+2,i+1]*vloc[k-r+i];
@@ -147,7 +149,7 @@ function WENO_urec(vloc::Vector,order::Int;ɛ = 1e-12)
   return(vl,vr)
 end
 
-function WENO_pm_rec(vmloc::Vector, vploc::Vector,order::Int;ɛ = 1e-12)
+function WENO_pm_rec(vmloc::Vector, vploc::Vector,order::Int;ɛ = 1e-12, crj = nothing)
   vl = zero(eltype(vmloc))
   vr = zero(eltype(vploc))
   N = size(vmloc,1)
@@ -168,7 +170,9 @@ function WENO_pm_rec(vmloc::Vector, vploc::Vector,order::Int;ɛ = 1e-12)
 
   # Compute k values of xl and xr based on different stencils
   ulr = zeros(k); urr = zeros(k);
-  crj = unif_crj(k)
+  if crj == nothing
+    crj = unif_crj(k)
+  end
   for r=0:(k-1)
       for i=0:k-1
           urr[r+1] = urr[r+1] + crj[r+2,i+1]*vploc[k-r+i];
@@ -205,7 +209,7 @@ end
 #Reference:
 # A. Henrick, T. Aslam, J. Powers, Mapped weighted essentially non-oscillatory
 # schemes: Achiving optimal order near critical points
-function MWENO_urec(vloc::Vector,order::Int;ɛ = 1e-12)
+function MWENO_urec(vloc::Vector,order::Int;ɛ = 1e-12, crj = nothing)
   vl = zero(eltype(vloc))
   vr = zero(eltype(vloc))
   N = size(vloc,1)
@@ -228,7 +232,9 @@ function MWENO_urec(vloc::Vector,order::Int;ɛ = 1e-12)
 
   # Compute k values of xl and xr based on different stencils
   ulr = zeros(k); urr = zeros(k);
-  crj = unif_crj(k)
+  if crj == nothing
+    crj = unif_crj(k)
+  end
   for r=0:(k-1)
       for i=0:k-1
           urr[r+1] = urr[r+1] + crj[r+2,i+1]*vloc[k-r+i];
@@ -281,7 +287,7 @@ function MWENO_urec(vloc::Vector,order::Int;ɛ = 1e-12)
   return(vl,vr)
 end
 
-function MWENO_pm_rec(vmloc::Vector,vploc::Vector,order::Int;ɛ = 1e-12)
+function MWENO_pm_rec(vmloc::Vector,vploc::Vector,order::Int;ɛ = 1e-12, crj=nothing)
   vl = zero(eltype(vmloc))
   vr = zero(eltype(vploc))
   N = size(vmloc,1)
@@ -304,7 +310,9 @@ function MWENO_pm_rec(vmloc::Vector,vploc::Vector,order::Int;ɛ = 1e-12)
 
   # Compute k values of xl and xr based on different stencils
   ulr = zeros(k); urr = zeros(k);
-  crj = unif_crj(k)
+  if crj == nothing
+    crj = unif_crj(k)
+  end
   for r=0:(k-1)
       for i=0:k-1
           urr[r+1] = urr[r+1] + crj[r+2,i+1]*vploc[k-r+i];
