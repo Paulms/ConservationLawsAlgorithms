@@ -1,12 +1,16 @@
 function get_L1_errors{T,N,uType,tType,ProbType}(sol::FVSolution{T,N,uType,tType,
-  ProbType,Uniform1DFVMesh}, ref::Function)
+  ProbType,Uniform1DFVMesh}, ref::Function; nvar = 0)
     x = sol.prob.mesh.x
     @unpack tend = sol.prob
     uexact = ref(x, tend)
-    return(sum(abs(sol.u[end] - uexact)))
+    if nvar == 0
+      return(sum(abs(sol.u[end] - uexact)))
+    else
+      return(sum(abs(sol.u[end][:,nvar] - uexact[:,nvar])))
+    end
 end
 
-function estimate_L2_error(reference, M, uu,N)
+function estimate_L1_error(reference, M, uu,N)
   uexact = zeros(N)
   R = Int(round(M/N))
   for i = 1:N
