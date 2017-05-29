@@ -209,6 +209,16 @@ end
 #Reference:
 # A. Henrick, T. Aslam, J. Powers, Mapped weighted essentially non-oscillatory
 # schemes: Achiving optimal order near critical points
+
+#Mapping function
+@inline function gk(ω::Vector, dr::Vector)
+  g = zeros(ω)
+  for i in 1:size(ω,1)
+    g[i] = ω[i]*(dr[i]+dr[i]^2-3*dr[i]*ω[i]+ω[i]^2)/(dr[i]^2+ω[i]*(1-2*dr[i]))
+  end
+  g
+end
+
 function MWENO_urec(vloc::Vector,order::Int;ɛ = 1e-12, crj = nothing)
   vl = zero(eltype(vloc))
   vr = zero(eltype(vloc))
@@ -266,8 +276,6 @@ function MWENO_urec(vloc::Vector,order::Int;ɛ = 1e-12, crj = nothing)
       ωl[r] = αl[r]/sum(αl);
       ωr[r] = αr[r]/sum(αr);
   end
-  #mapping function
-  gk(ω) = ω.*(dr+dr.^2-3*dr.*ω+ω.^2)./(dr.^2+ω.*(1-2*dr))
 
   # Compute α mapped parameters
   αmr = gk(ωr)
@@ -335,8 +343,6 @@ function MWENO_pm_rec(vmloc::Vector,vploc::Vector,order::Int;ɛ = 1e-12, crj=not
       ωl[r] = αl[r]/sum(αl);
       ωr[r] = αr[r]/sum(αr);
   end
-  #mapping function
-  gk(ω,dr) = ω.*(dr+dr.^2-3*dr.*ω+ω.^2)./(dr.^2+ω.*(1-2*dr))
 
   # Compute α mapped parameters
   drl = reverse(dr)
