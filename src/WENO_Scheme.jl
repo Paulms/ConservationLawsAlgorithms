@@ -179,6 +179,7 @@ end
     αj = zeros(N+1,M)
     RMats = Vector{typeof(Jf(uu[1,:]))}(0)
     LMats = Vector{typeof(Jf(uu[1,:]))}(0)
+    gk = zeros(uu)
     for j =1:(N+1)
       ul = uu[j-1,:]; ur = uu[j,:]
       MatJf = Jf(0.5*(ul+ur))
@@ -186,6 +187,9 @@ end
       push!(RMats,Rj); push!(LMats,Lj)
       λl = eigvals(Jf(ul)); λr = eigvals(Jf(ur))
       αj[j,:] = max.(abs(λl),abs(λr))
+      if j < N+1
+        gk[j,:] = Flux(uu[j,:])
+      end
       for i in 1:M
         if λl[i]*λr[i] <= 0
           save_case[j,i] = 1
@@ -204,10 +208,10 @@ end
   gmloc = zeros(k*2+1,M);gploc = zeros(k*2+1,M)
   for j = 0:N
     for (ll,l) in enumerate((j-k):(j+k))
-      gklloc[ll,:] = LMats[j+1]*Flux(uu[l+1,:])
-      gkrloc[ll,:] =  LMats[j+1]*Flux(uu[l,:])
-      gmloc[ll,:] = 0.5*LMats[j+1]*(Flux(uu[l+1,:])-αj[j+1,:].*uu[l+1,:])
-      gploc[ll,:] = 0.5*LMats[j+1]*(Flux(uu[l,:])+αj[j+1,:].*uu[l,:])
+      gklloc[ll,:] = LMats[j+1]*gk[l+1,:]
+      gkrloc[ll,:] =  LMats[j+1]*gk[l,:]
+      gmloc[ll,:] = 0.5*LMats[j+1]*(gk[l+1,:]-αj[j+1,:].*uu[l+1,:])
+      gploc[ll,:] = 0.5*LMats[j+1]*(gk[l,:]+αj[j+1,:].*uu[l,:])
     end
     for i = 1:M
       if save_case[j+1,i] == 1
