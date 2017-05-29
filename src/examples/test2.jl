@@ -32,6 +32,7 @@ prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 @time sol2 = solve(prob, FVTecnoAlgorithm(Nflux;order=3);progressbar=true)
 @time sol3 = solve(prob, FVCompWENOAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
 @time sol4 = solve(prob, FVCompMWENOAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
+@time sol5 = solve(prob, FVSpecMWENOAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
 
 #writedlm("test_2_ktreference.txt", [mesh.x sol.u[end]], '\t')
 #writedlm("test_2_Tecnoreference.txt", [mesh.x sol2.u[end]], '\t')
@@ -41,7 +42,7 @@ get_L1_errors(sol, exact_sol; nvar = 1) #43.3
 get_L1_errors(sol2, exact_sol; nvar = 1) #0.0986
 get_L1_errors(sol3, exact_sol; nvar = 1) #0.0182
 get_L1_errors(sol4, exact_sol; nvar = 1) #0.0180
-
+get_L1_errors(sol5, exact_sol; nvar = 1) #0.0180
 #Plot
 using Plots
 plot(mesh.x, sol.u[1][:,1], lab="ho",line=(:dot,2))
@@ -49,4 +50,5 @@ plot!(mesh.x, sol.u[end][:,1],lab="KT h",line = (:dot,2))
 plot!(mesh.x, sol2.u[end][:,1],lab="Tecno h",line=(:dot,3))
 plot!(mesh.x, sol3.u[end][:,1],lab="Comp WENO h",line=(:dot,3))
 plot!(mesh.x, sol4.u[end][:,1],lab="Comp MWENO h",line=(:dot,3))
+plot!(mesh.x, sol5.u[end][:,1],lab="Spec MWENO h",line=(:dot,3))
 plot!(mesh.x, exact_sol(mesh.x,Tend)[:,1],lab="Ref")

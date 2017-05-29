@@ -176,22 +176,16 @@ end
 #################################################################
 @def specmweno_rhs_header begin
     save_case = zeros(N+1,M)
-    gk = zeros(uu)
-    gplus = zeros(uu); gminus = zeros(uu)
+    αj = zeros(N+1,M)
     RMats = Vector{typeof(Jf(uu[1,:]))}(0)
     LMats = Vector{typeof(Jf(uu[1,:]))}(0)
     for j =1:(N+1)
       ul = uu[j-1,:]; ur = uu[j,:]
       MatJf = Jf(0.5*(ul+ur))
-      Rj = eigvecs(MatJf);  Lj = eigvecs(MatJf')
+      Rj = eigvecs(MatJf);  Lj = inv(Rj)
       push!(RMats,Rj); push!(LMats,Lj)
       λl = eigvals(Jf(ul)); λr = eigvals(Jf(ur))
-      if j < N+1
-        αj = max(maximum(abs(λl)),maximum(abs(λr)))
-        gk[j,:]=Flux(ul)
-        gminus[j,:]=0.5*(Flux(ul)-αj*ul)
-        gplus[j,:]=0.5*(Flux(ul)+αj*ul)
-      end
+      αj[j,:] = max.(abs(λl),abs(λr))
       for i in 1:M
         if λl[i]*λr[i] <= 0
           save_case[j,i] = 1
@@ -210,10 +204,10 @@ end
   gmloc = zeros(k*2+1,M);gploc = zeros(k*2+1,M)
   for j = 0:N
     for (ll,l) in enumerate((j-k):(j+k))
-      gklloc[ll,:] = LMats[j+1]'*gk[l+1,:]
-      gkrloc[ll,:] =  LMats[j+1]'*gk[l,:]
-      gmloc[ll,:] = LMats[j+1]'*gminus[l+1,:]
-      gploc[ll,:] = LMats[j+1]'*gplus[l,:]
+      gklloc[ll,:] = LMats[j+1]*Flux(uu[l+1,:])
+      gkrloc[ll,:] =  LMats[j+1]*Flux(uu[l,:])
+      gmloc[ll,:] = 0.5*LMats[j+1]*(Flux(uu[l+1,:])-αj[j+1,:].*uu[l+1,:])
+      gploc[ll,:] = 0.5*LMats[j+1]*(Flux(uu[l,:])+αj[j+1,:].*uu[l,:])
     end
     for i = 1:M
       if save_case[j+1,i] == 1
