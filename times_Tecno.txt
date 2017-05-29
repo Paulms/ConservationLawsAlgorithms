@@ -17,6 +17,10 @@ Comp 2 N=200
 2.773509 seconds (17.01 M allocations: 1.475 GB, 8.05% gc time)
 1.076080 seconds (14.80 M allocations: 1.400 GB, 13.16% gc time)
 
+After improve type hints (29/05/2017)
+Comp 2 N=200
+2.487876 seconds (16.11 M allocations: 1.443 GB, 15.02% gc time)
+1.253603 seconds (14.80 M allocations: 1.400 GB, 21.55% gc time)
 
 Test 2
 First time (17/05/2017)
@@ -41,3 +45,8 @@ Comp 1 N = 500
 Comp 2 N = 500
 9.386888 seconds (99.64 M allocations: 6.655 GB, 7.04% gc time)
  8.133094 seconds (97.61 M allocations: 6.586 GB, 9.09% gc time)
+
+After improve type hints (29/05/2017)
+Comp 2 N = 500
+9.694701 seconds (99.16 M allocations: 6.640 GB, 7.38% gc time)
+8.273219 seconds (97.61 M allocations: 6.586 GB, 9.36% gc time)

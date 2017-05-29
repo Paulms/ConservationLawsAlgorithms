@@ -1,4 +1,4 @@
-immutable FVIntegrator{T1,mType,tType,uType,tendType,F,G}
+immutable FVIntegrator{T1,mType,tType,uType,F,G}
   alg::T1
   mesh::mType
   u::uType
@@ -9,7 +9,7 @@ immutable FVIntegrator{T1,mType,tType,uType,tendType,F,G}
   M::Int
   numiters::Int
   typeTIntegration::Symbol
-  tend::tendType
+  tend::tType
   save_everystep::Bool
   ts::Vector{tType}
   timeseries::Vector{uType}
@@ -18,7 +18,7 @@ immutable FVIntegrator{T1,mType,tType,uType,tendType,F,G}
   progressbar_name::String
 end
 
-immutable FVDiffIntegrator{T1,mType,tType,uType,tendType,F,G,B}
+immutable FVDiffIntegrator{T1,mType,tType,uType,F,G,B}
   alg::T1
   mesh::mType
   u::uType
@@ -30,7 +30,7 @@ immutable FVDiffIntegrator{T1,mType,tType,uType,tendType,F,G,B}
   M::Int
   numiters::Int
   typeTIntegration::Symbol
-  tend::tendType
+  tend::tType
   save_everystep::Bool
   ts::Vector{tType}
   timeseries::Vector{uType}

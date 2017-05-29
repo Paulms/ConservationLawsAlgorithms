@@ -27,8 +27,8 @@ end
 # |---|---|---|......|---|---|
 # 1   2   3   4 ... N-1  N  N+1
 
-function FV_solve{tType,uType,tendType,F,G,B}(integrator::FVDiffIntegrator{FVESJPAlgorithm,
-  Uniform1DFVMesh,tType,uType,tendType,F,G,B})
+function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVESJPAlgorithm,
+  Uniform1DFVMesh,tType,uType,F,G,B})
   @fv_diffdeterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
@@ -62,8 +62,8 @@ function FV_solve{tType,uType,tendType,F,G,B}(integrator::FVDiffIntegrator{FVESJ
   @fv_postamble
 end
 
-function FV_solve{tType,uType,tendType,F,G,B}(integrator::FVDiffIntegrator{FVESJPeAlgorithm,
-  Uniform1DFVMesh,tType,uType,tendType,F,G,B})
+function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVESJPeAlgorithm,
+  Uniform1DFVMesh,tType,uType,F,G,B})
   @fv_diffdeterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble

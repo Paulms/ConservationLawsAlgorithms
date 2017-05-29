@@ -25,6 +25,11 @@ Comp 2 N=200
 3.378470 seconds (29.27 M allocations: 2.173 GB, 6.09% gc time)
 1.405066 seconds (25.96 M allocations: 2.065 GB, 13.99% gc time)
 
+After improve type hints (29/05/2017)
+Comp 2 N=200
+2.524402 seconds (27.54 M allocations: 2.111 GB, 10.05% gc time)
+1.585320 seconds (25.96 M allocations: 2.064 GB, 21.02% gc time)	
+
 
 Test 2
 After OffsetArrays
@@ -52,3 +57,8 @@ Comp 1 N = 500
 Comp 2 N = 500
 7.813722 seconds (166.05 M allocations: 8.549 GB, 9.93% gc time)
  5.556165 seconds (161.65 M allocations: 8.403 GB, 16.97% gc time)
+
+After improve type hints (29/05/2017)
+Comp 2 N=500
+7.501633 seconds (165.20 M allocations: 8.518 GB, 11.09% gc time)
+5.366654 seconds (161.65 M allocations: 8.403 GB, 14.81% gc time)

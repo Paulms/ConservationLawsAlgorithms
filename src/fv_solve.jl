@@ -1,7 +1,5 @@
-#function solve{MeshType<:FVMesh,F,F2,F3,F4,F5}(
-function solve(
-  #prob::ConservationLawsProblem{MeshType,F,F2,F3,F4,F5},
-  prob::ConservationLawsProblem,
+function solve{MeshType,F,F2,F3,F4,F5}(
+  prob::ConservationLawsProblem{MeshType,F,F2,F3,F4,F5},
   alg::AbstractFVAlgorithm;
   timeseries_steps::Int = 100,
   save_everystep::Bool = false,
@@ -29,16 +27,16 @@ function solve(
   ts = Float64[t]
 
   #Equation Loop
-  u,timeseries,ts=FV_solve(FVIntegrator(alg,prob.mesh,u,f,Jf,CFL,t,
+  u,timeseries,ts=FV_solve(FVIntegrator{typeof(alg),typeof(prob.mesh),typeof(tend),typeof(u),
+  typeof(f),typeof(Jf)}(alg,prob.mesh,u,f,Jf,CFL,t,
   numvars,numiters,typeTIntegration,tend,save_everystep,ts,timeseries,timeseries_steps,
     progressbar,progressbar_name))
 
   return(FVSolution(timeseries,ts,prob))
 end
 
-function solve(
-  #prob::ConservationLawsProblem{MeshType,F,F2,F3,F4,F5},
-  prob::ConservationLawsWithDiffusionProblem,
+function solve{MeshType,F,F2,F3,F4,F5,F6}(
+  prob::ConservationLawsWithDiffusionProblem{MeshType,F,F2,F3,F4,F5,F6},
   alg::AbstractFVAlgorithm;
   timeseries_steps::Int = 100,
   save_everystep::Bool = false,
@@ -58,7 +56,7 @@ function solve(
 
   #Set Initial
   u = copy(u0)
-  t = 0.0
+  t = zero(tend)
 
   #Setup timeseries
   timeseries = Vector{typeof(u)}(0)
@@ -66,7 +64,8 @@ function solve(
   ts = Float64[t]
 
   #Equation Loop
-  u,timeseries,ts=FV_solve(FVDiffIntegrator(alg,prob.mesh,u,f,DiffMat,Jf,CFL,t,
+  u,timeseries,ts=FV_solve(FVDiffIntegrator{typeof(alg),typeof(prob.mesh),typeof(tend),typeof(u),
+  typeof(f),typeof(Jf),typeof(DiffMat)}(alg,prob.mesh,u,f,DiffMat,Jf,CFL,t,
   numvars,numiters,typeTIntegration,tend,save_everystep,ts,timeseries,timeseries_steps,
     progressbar,progressbar_name))
 
