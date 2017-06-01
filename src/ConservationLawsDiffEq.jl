@@ -35,11 +35,13 @@ module ConservationLawsDiffEq
   include("Tecno_scheme.jl")
   include("ESJP_scheme.jl")
   include("WENO_Scheme.jl")
+  include("LI_IMEXRK_Schemes.jl")
 
   export solve
   export Uniform1DFVMesh
   export ConservationLawsProblem, ConservationLawsWithDiffusionProblem
   export FVKTAlgorithm, FVTecnoAlgorithm, FVESJPAlgorithm
   export FVCompWENOAlgorithm, FVCompMWENOAlgorithm, FVSpecMWENOAlgorithm
+  export RKTable, LI_IMEX_RK_Algorithm
   export get_L1_errors
 end
