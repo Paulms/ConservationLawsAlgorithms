@@ -47,24 +47,35 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{LI_IMEX_RK_Alg
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
   @unpack RKTab, solver = integrator.alg
-
-  function rhs!(rhs, uold, N, M, dx, dt, bdtype)
-    #SEt ghost Cells
-    @boundary_header
-    # Numerical Fluxes
-    hh = zeros(N+1,M)
-    # Diffusion
-    pp = zeros(N+1,M)
-    @boundary_update
-    @update_rhs
-  end
-  uold = similar(u)
-  rhs = zeros(u)
   @inbounds for i=1:numiters
     dt = cdt(u, CFL, dx, Jf)
+    Φ = view(u',:)
+    BB = assamble_B(Φ,N,M,DiffMat)
     t += dt
-    @fv_deterministicloop
     @fv_footer
   end
   @fv_postamble
+end
+
+function assamble_B(Φ,N,M,DiffMat)
+  BB = spzeros(N*M,N*M)
+  for i = 1:N
+    for j = 1:N
+      if i == j
+        ul= i>1 ? view(Φ,((i-2)*M+1):((i-1)*M)) : zeros(M)
+        uc=view(Φ,((i-1)*M+1):(i*M))
+        ur=i < N ? view(Φ,(i*M+1):((i+1)*M)) : zeros(M)
+        BB[((i-1)*M+1):(i*M),((j-1)*M+1):(j*M)] = 0.5*(DiffMat(ul)+2*DiffMat(uc)+DiffMat(ur))
+      elseif j == i+1
+        uc=view(Φ,((i-1)*M+1):(i*M))
+        ur=i < N ? view(Φ,(i*M+1):((i+1)*M)) : zeros(M)
+        BB[((i-1)*M+1):(i*M),((j-1)*M+1):(j*M)] = 0.5*(DiffMat(uc)+DiffMat(ur))
+      elseif j == i-1
+        ul=i>1 ? view(Φ,((i-2)*M+1):((i-1)*M)) : zeros(M)
+        uc=view(Φ,((i-1)*M+1):(i*M))
+        BB[((i-1)*M+1):(i*M),((j-1)*M+1):(j*M)] = 0.5*(DiffMat(ul)+DiffMat(uc))
+      end
+    end
+  end
+  BB
 end
