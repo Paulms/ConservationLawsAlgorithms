@@ -13,14 +13,14 @@ Solutions follow a conservative finite diference (finite volume) pattern. This m
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\frac{d}{du}u_{i}(t)=-\frac{1}{\Delta_{i}x}(F_{i&plus;1/2}(t)-F_{i-1/2}(t))" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\frac{d}{du}u_{i}(t)=-\frac{1}{\Delta_{i}x}(F_{i&plus;1/2}(t)-F_{i-1/2}(t))" title="\frac{d}{du}u_{i}(t)=-\frac{1}{\Delta_{i}x}(F_{i+1/2}(t)-F_{i-1/2}(t))" /></a>
 
-Where the numerical flux <a href="https://www.codecogs.com/eqnedit.php?latex=F_{i&plus;1/2}(t)&space;=&space;F(u_{i}(t),u_{i&plus;1}(t)))" target="_blank"><img src="https://latex.codecogs.com/gif.latex?F_{i&plus;1/2}(t)&space;=&space;F(u_{i}(t),u_{i&plus;1}(t)))" title="F_{i+1/2}(t) = F(u_{i}(t),u_{i+1}(t)))" /></a> is an approximate solution of the Riemann problem at the cell interface (x(i+1/2)). 
+Where the numerical flux <a href="https://www.codecogs.com/eqnedit.php?latex=F_{i&plus;1/2}(t)&space;=&space;F(u_{i}(t),u_{i&plus;1}(t)))" target="_blank"><img src="https://latex.codecogs.com/gif.latex?F_{i&plus;1/2}(t)&space;=&space;F(u_{i}(t),u_{i&plus;1}(t)))" title="F_{i+1/2}(t) = F(u_{i}(t),u_{i+1}(t)))" /></a> is an approximate solution of the Riemann problem at the cell interface (x(i+1/2)).
 
 An extra term **P** similar to **F** could be added to account for the Diffusion in the second case.
 
 The time integration of the semi discrete form is performed with Runge Kutta methods.
 
 ## Features
-### Mesh: 
+### Mesh:
 At the momento only Cartesian 1D uniform mesh available, using `FVMesh(N,a,b,boundary)` command. Where
 
 `N` = Number of cells
@@ -32,6 +32,10 @@ At the momento only Cartesian 1D uniform mesh available, using `FVMesh(N,a,b,bou
 * Problem types: System of Conservation Laws without (`ConservationLawsProblem`) and with diffusion term (`ConservationLawsWithDiffusionProblem`).
 
 ### Algorithms
+
+* Lax-Friedrichs method, Ritchmeyer Two-step Lax-Wendroff Method
+
+R. LeVeque. Finite Volume Methods for Hyperbolic Problems.Cambridge University Press. New York 2002
 
 * TECNO Schemes
 

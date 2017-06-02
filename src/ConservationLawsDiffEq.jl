@@ -36,6 +36,8 @@ module ConservationLawsDiffEq
   include("ESJP_scheme.jl")
   include("WENO_Scheme.jl")
   include("LI_IMEXRK_Schemes.jl")
+  include("Lax_Friedrichs_scheme.jl")
+  include("Lax_Wendroff2s_scheme.jl")
 
   export solve
   export Uniform1DFVMesh
@@ -43,5 +45,6 @@ module ConservationLawsDiffEq
   export FVKTAlgorithm, FVTecnoAlgorithm, FVESJPAlgorithm
   export FVCompWENOAlgorithm, FVCompMWENOAlgorithm, FVSpecMWENOAlgorithm
   export RKTable, LI_IMEX_RK_Algorithm
-  export get_L1_errors
+  export LaxFriedrichsAlgorithm, LaxWendroff2sAlgorithm
+  export get_L1_errors, minmod
 end

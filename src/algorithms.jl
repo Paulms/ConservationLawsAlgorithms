@@ -117,6 +117,36 @@ end
   end
 end
 
+@def no_diffusion_term begin
+  pp = zeros(N+1,M)
+end
+
+# nflux must be capable of receiving vectors
+@def fv_method_with_nflux_common begin
+  function rhs!(rhs, uold, N, M, dx, dt, bdtype)
+    #Set ghost Cells
+    @boundary_header
+    # Numerical Fluxes
+    hh = zeros(N+1,M)
+    for j = 1:N+1
+      hh[j,:] = nflux(uu[j-1,:], uu[j,:], dx, dt)
+    end
+    # Diffusion
+    @no_diffusion_term
+    @boundary_update
+    @update_rhs
+  end
+  uold = similar(u)
+  rhs = zeros(u)
+  @inbounds for i=1:numiters
+    dt = cdt(u, CFL, dx, Jf)
+    t += dt
+    @fv_deterministicloop
+    @fv_footer
+  end
+  @fv_postamble
+end
+
 # Time integrators
 @def fv_deterministicloop begin
   uold = copy(u)
