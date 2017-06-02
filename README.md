@@ -61,7 +61,7 @@ S. Boscarino, R. Bürger, P. Mulet, G. Russo, L. Villada, *Linearly implicit IME
 
 ### Time integration methods:
 
-At the moment available methods are: Forward Euler (`FORWARD_EULER`), Strong Stability Preserving Runge Kutta 2 (`SSPRK22`, default), `SSPRK33`, `SSPRK104`, Runge-Kutta 4 (`RK4`).
+At the moment available methods are: Forward Euler (`:FORWARD_EULER`), Strong Stability Preserving Runge Kutta 2 (`:SSPRK22`, default), `:SSPRK33`, `:SSPRK104`, Runge-Kutta 4 (`:RK4`).
 
 For IMEX Scheme RK methods: H-CN(2,2,2) `:H_CN_222`, H-DIRK2(2,2,2) `:H_DIRK2_222`, H-LDIRK2(2,2,2) `:H_LDIRK2_222`, H-LDIRK3(2,2,2) `:H_LDIRK3_222`, SSP-LDIRK(3,3,2) `:SSP_LDIRK_332`. For more information see:
 
