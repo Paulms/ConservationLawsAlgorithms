@@ -35,7 +35,7 @@ f(ϕ::Vector) = VV(sum(ϕ))*ϕ.*Vmax
 VV(ϕ::Number) = (ϕ < ϕc) ? 1.0 : 1.0-ϕ
 VP(ϕ::Number) = (ϕ < ϕc) ? 0.0 : -1.0
 
-function BB(ϕ::Vector)
+function BB(ϕ::AbstractArray)
   if (sum(ϕ) < ϕc)
     0.0
   else
@@ -72,4 +72,4 @@ plot!(sol.prob.mesh.x, [sum(sol.u[end][i,:]) for i=1:sol.prob.mesh.N],line=(2),l
 
 plot(sol2.prob.mesh.x, sol2.u[1], line=(:dot,2), ylab="u", xlab = "x")
 plot(sol2.prob.mesh.x, sol2.u[end], line=(:dot,2), ylab="u", xlab = "x")
-plot!(sol2.prob.mesh.x, [sum(sol2.u[end][i,:]) for i=1:N],lab="u")
+plot!(sol2.prob.mesh.x, [sum(sol2.u[end][i,:]) for i=1:N],lab="u IMEX")

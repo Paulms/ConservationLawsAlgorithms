@@ -47,31 +47,77 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{LI_IMEX_RK_Alg
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
   @unpack RKTab, solver = integrator.alg
+  Φ = view(u',:)
+  crj = unif_crj(3) #eno weights for weno5
+  order = 5         #weno5
   @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    Φ = view(u',:)
-    BB = assamble_B(Φ,N,M,DiffMat)
+    α = maxfluxρ(u,Jf)
+    dt = CFL*dx/α
+    Ki = zeros(Φ)
+    Kj = Vector{typeof(Ki)}(0)
+    # i step
+    for i = 1:RKTab.order
+      Kjs = zeros(Ki); Kjh = zeros(Ki)
+      for j = 1:i-1
+        Kjs = Kjs + RKTab.At[i,j]*Kj[j]
+        Kjh = Kjh + RKTab.A[i,j]*Kj[j]
+      end
+      Φs = Φ + dt*Kjs
+      Φh = Φ + dt*Kjh
+      BB = assamble_B(Φs,N,M,DiffMat,bdtype)
+      A = I-dt/dx^2*RKTab.A[i,i]*BB
+      #Reconstruct flux with comp weno5 see: WENO_Scheme.jl
+      uold = reshape(Φs,M,N)'
+      @boundary_header
+      @global_lax_flux
+      k=2
+      @weno_rhs_header
+      Cϕ = hh[2:N+1,:]-hh[1:N,:]
+      b = -1/dx*view(Cϕ',:)+1\dx^2*BB*Φh
+      #Solve linear system
+      if solver == :Direct
+        Ki = A\b
+      elseif solver == :CG
+        cg!(Ki,A,b)
+      elseif solver == :GMRES
+        gmres!(Ki,A,b)
+      end
+      push!(Kj,copy(Ki))
+    end
+    for j = 1:RKTab.order
+      Φ = Φ + dt*RKTab.b[j]*Kj[j]
+    end
+    u = reshape(Φ,M,N)'
     t += dt
     @fv_footer
   end
   @fv_postamble
 end
 
-function assamble_B(Φ,N,M,DiffMat)
+function assamble_B(Φ,N,M,DiffMat,bdtype)
   BB = spzeros(N*M,N*M)
+  uleft = view(Φ,1:M)
+  uright = view(Φ,((N-1)*M+1):(N*M))
+  if bdtype == :ZERO_FLUX
+  elseif bdtype == :PERIODIC
+    uright = view(Φ,1:M)
+    uleft = view(Φ,((N-1)*M+1):(N*M))
+  else
+    throw("Boundary type $bdtype not supported")
+  end
   for i = 1:N
     for j = 1:N
       if i == j
-        ul= i>1 ? view(Φ,((i-2)*M+1):((i-1)*M)) : zeros(M)
-        uc=view(Φ,((i-1)*M+1):(i*M))
-        ur=i < N ? view(Φ,(i*M+1):((i+1)*M)) : zeros(M)
-        BB[((i-1)*M+1):(i*M),((j-1)*M+1):(j*M)] = 0.5*(DiffMat(ul)+2*DiffMat(uc)+DiffMat(ur))
+        ul = i>1 ? view(Φ,((i-2)*M+1):((i-1)*M)) : uleft
+        uc = view(Φ,((i-1)*M+1):(i*M))
+        ur = i < N ? view(Φ,(i*M+1):((i+1)*M)) : uright
+        BB[((i-1)*M+1):(i*M),((j-1)*M+1):(j*M)] = -0.5*(DiffMat(ul)+2*DiffMat(uc)+DiffMat(ur))
       elseif j == i+1
         uc=view(Φ,((i-1)*M+1):(i*M))
-        ur=i < N ? view(Φ,(i*M+1):((i+1)*M)) : zeros(M)
+        ur=i < N ? view(Φ,(i*M+1):((i+1)*M)) : uright
         BB[((i-1)*M+1):(i*M),((j-1)*M+1):(j*M)] = 0.5*(DiffMat(uc)+DiffMat(ur))
       elseif j == i-1
-        ul=i>1 ? view(Φ,((i-2)*M+1):((i-1)*M)) : zeros(M)
+        ul=i>1 ? view(Φ,((i-2)*M+1):((i-1)*M)) : uleft
         uc=view(Φ,((i-1)*M+1):(i*M))
         BB[((i-1)*M+1):(i*M),((j-1)*M+1):(j*M)] = 0.5*(DiffMat(ul)+DiffMat(uc))
       end
