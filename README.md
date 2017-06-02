@@ -20,7 +20,8 @@ An extra term **P** similar to **F** could be added to account for the Diffusion
 The time integration of the semi discrete form is performed with methods like strong stability preserving Runge-Kutta.
 
 ## Features
-* Mesh: At the momento only Cartesian 1D uniform mesh available, using `FVMesh(N,a,b,boundary)` command. Where
+### Mesh: 
+At the momento only Cartesian 1D uniform mesh available, using `FVMesh(N,a,b,boundary)` command. Where
 
 `N` = Number of cells
 
@@ -30,27 +31,43 @@ The time integration of the semi discrete form is performed with methods like st
 
 * Problem types: System of Conservation Laws without (`ConservationLawsProblem`) and with diffusion term (`ConservationLawsWithDiffusionProblem`).
 
-* Algorithms
+### Algorithms
 
-TECNO Schemes
+* TECNO Schemes
 
 U. Fjordholm, S. Mishra, E. Tadmor, *Arbitrarly high-order accurate entropy stable essentially nonoscillatory schemes for systems of conservation laws*. 2012. SIAM. vol. 50. No 2. pp. 544-573
 
-High-Resolution Central Schemes:
+* High-Resolution Central Schemes:
 
 Kurganov, Tadmor, *New High-Resolution Central Schemes for Nonlinear Conservation Laws and Convection–Diffusion Equations*, Journal of Computational Physics, Vol 160, issue 1, 1 May 2000, Pages 241-282
 
-Component Wise Weighted Essentially Non-Oscilaroty (WENO-LF)
+* Component Wise Weighted Essentially Non-Oscilaroty (WENO-LF)
 
 C.-W. Shu, *High order weighted essentially non-oscillatory schemes for convection dominated problems*, SIAM Review, 51:82-126, (2009).
 
-Component Wise Mapped WENO
+* Component Wise Mapped WENO Scheme
 
 A. Henrick, T. Aslam, J. Powers, *Mapped weighted essentially non-oscillatory schemes: Achiving optimal order near critical points*. Journal of Computational Physics. Vol 207. 2005. Pages 542-567
 
-* Time integration methods:
+* Characteristic Wise WENO (Spectral) Scheme
+
+R. Bürger, R. Donat, P. Mulet, C. Vega, *On the implementation of WENO schemes for a class of polydisperse sedimentation models*. Journal of Computational Physics, Volume 230, Issue 6, 20 March 2011, Pages 2322-2344
+
+* Linearly implicit IMEX Runge-Kutta schemes
+
+(See Time integration methods for RK options, Flux reconstruction uses Comp WENO5)
+
+S. Boscarino, R. Bürger, P. Mulet, G. Russo, L. Villada, *Linearly implicit IMEX Runge Kutta methods for a class of degenerate convection difussion problems*, SIAM J. Sci. Comput., 37(2), B305–B331
+
+### Time integration methods:
 
 At the moment available methods are: Forward Euler (`FORWARD_EULER`), Strong Stability Preserving Runge Kutta 2 (`SSPRK22`, default), `SSPRK33`, `SSPRK104`, Runge-Kutta 4 (`RK4`).
+
+For IMEX Scheme RK methods: H-CN(2,2,2) `:H_CN_222`, H-DIRK2(2,2,2) `:H_DIRK2_222`, H-LDIRK2(2,2,2) `:H_LDIRK2_222`, H-LDIRK3(2,2,2) `:H_LDIRK3_222`, SSP-LDIRK(3,3,2) `:SSP_LDIRK_332`. For more information see:
+
+* S. Boscarino, P.G. LeFloch and G. Russo. *High order asymptotic-preserving methods for fully nonlinear relaxation problems*. SIAM J. Sci. Comput., 36 (2014), A377–A395.
+
+* S. Boscarino, F. Filbet and G. Russo. *High order semi-implicit schemes for time dependent partial differential equations*. SIAM J. Sci. Comput. September 2016, Volume 68, Issue 3, pp 975–1001
 
 ## Example
 Hyperbolic Shallow Water system with flat bottom:
