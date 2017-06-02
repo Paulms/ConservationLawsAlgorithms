@@ -27,39 +27,39 @@ At the momento only Cartesian 1D uniform mesh available, using `FVMesh(N,a,b,bou
 
 `a,b` = start and end coordinates.
 
-`boundary` = boundary type (:ZERO_FLUX (default), :PERIODIC)
+`boundary` = boundary type (`:ZERO_FLUX` (default), `:PERIODIC`)
 
 * Problem types: System of Conservation Laws without (`ConservationLawsProblem`) and with diffusion term (`ConservationLawsWithDiffusionProblem`).
 
 ### Algorithms
 
-* Lax-Friedrichs method, Ritchmeyer Two-step Lax-Wendroff Method
+* Lax-Friedrichs method (`LaxFriedrichsAlgorithm()`), Ritchmeyer Two-step Lax-Wendroff Method (`LaxWendroff2sAlgorithm()`)
 
 R. LeVeque. Finite Volume Methods for Hyperbolic Problems.Cambridge University Press. New York 2002
 
-* TECNO Schemes
+* TECNO Schemes (`FVTecnoAlgorithm(Nflux;ve, order)`)
 
 U. Fjordholm, S. Mishra, E. Tadmor, *Arbitrarly high-order accurate entropy stable essentially nonoscillatory schemes for systems of conservation laws*. 2012. SIAM. vol. 50. No 2. pp. 544-573
 
-* High-Resolution Central Schemes:
+* High-Resolution Central Schemes (`FVKTAlgorithm()`)
 
 Kurganov, Tadmor, *New High-Resolution Central Schemes for Nonlinear Conservation Laws and Convection–Diffusion Equations*, Journal of Computational Physics, Vol 160, issue 1, 1 May 2000, Pages 241-282
 
-* Component Wise Weighted Essentially Non-Oscilaroty (WENO-LF)
+* Component Wise Weighted Essentially Non-Oscilaroty (WENO-LF) (`FVCompWENOAlgorithm(;order)`)
 
 C.-W. Shu, *High order weighted essentially non-oscillatory schemes for convection dominated problems*, SIAM Review, 51:82-126, (2009).
 
-* Component Wise Mapped WENO Scheme
+* Component Wise Mapped WENO Scheme (`FVCompMWENOAlgorithm(;order)`)
 
 A. Henrick, T. Aslam, J. Powers, *Mapped weighted essentially non-oscillatory schemes: Achiving optimal order near critical points*. Journal of Computational Physics. Vol 207. 2005. Pages 542-567
 
-* Characteristic Wise WENO (Spectral) Scheme
+* Characteristic Wise WENO (Spectral) Scheme (`FVSpecMWENOAlgorithm(;order)`)
 
 R. Bürger, R. Donat, P. Mulet, C. Vega, *On the implementation of WENO schemes for a class of polydisperse sedimentation models*. Journal of Computational Physics, Volume 230, Issue 6, 20 March 2011, Pages 2322-2344
 
-* Linearly implicit IMEX Runge-Kutta schemes
+* Linearly implicit IMEX Runge-Kutta schemes (`LI_IMEX_RK_Algorithm(;scheme, solver)`)
 
-(See Time integration methods for RK options, Flux reconstruction uses Comp WENO5)
+(See Time integration methods for RK options (`scheme`), Flux reconstruction uses Comp WENO5, linear solver can be: internal solver (default), `:CG` Conjugate gradient, `:GMRES`)
 
 S. Boscarino, R. Bürger, P. Mulet, G. Russo, L. Villada, *Linearly implicit IMEX Runge Kutta methods for a class of degenerate convection difussion problems*, SIAM J. Sci. Comput., 37(2), B305–B331
 
@@ -115,7 +115,7 @@ u0 = u0_func(mesh.x)
 
 #Setup problem:
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
-#Solve problem using Kurganov-Tadmor scheme
+#Solve problem using Kurganov-Tadmor scheme and Strong Stability Preserving RK33
 @time sol = solve(prob, FVKTAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
 
 #Plot
@@ -125,4 +125,4 @@ plot!(sol.prob.mesh.x, sol.u[end][:,1],lab="KT h")
 ```
 
 # Disclamer
-**This is very early and experimental code!!!**
+** developed for personal use, some of the schemes have not been tested enough!!!**
