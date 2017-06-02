@@ -17,7 +17,7 @@ Where the numerical flux <a href="https://www.codecogs.com/eqnedit.php?latex=F_{
 
 An extra term **P** similar to **F** could be added to account for the Diffusion in the second case.
 
-The time integration of the semi discrete form is performed with methods like strong stability preserving Runge-Kutta.
+The time integration of the semi discrete form is performed with Runge Kutta methods.
 
 ## Features
 ### Mesh: 
@@ -116,8 +116,8 @@ prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 
 #Plot
 using Plots
-plot(mesh.x, sol.u[1][:,1], lab="ho",line=(:dot,2))
-plot!(mesh.x, sol.u[end][:,1],lab="KT h")
+plot(sol.prob.mesh.x, sol.u[1][:,1], lab="ho",line=(:dot,2))
+plot!(sol.prob.mesh.x, sol.u[end][:,1],lab="KT h")
 ```
 
 # Disclamer
