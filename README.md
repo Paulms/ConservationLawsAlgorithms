@@ -17,7 +17,7 @@ Where the numerical flux <a href="https://www.codecogs.com/eqnedit.php?latex=F_{
 
 An extra term **P** similar to **F** could be added to account for the Diffusion in the second case.
 
-The time integration of the semi discrete form is performed with Runge Kutta methods.
+Time integration of the semi discrete form is performed using [OrdinaryDiffEq](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) algorithms.
 
 ## Features
 ### Mesh:
@@ -65,7 +65,7 @@ S. Boscarino, R. Bürger, P. Mulet, G. Russo, L. Villada, *Linearly implicit IME
 
 ### Time integration methods:
 
-At the moment available methods are: Forward Euler (`:FORWARD_EULER`), Strong Stability Preserving Runge Kutta 2 (`:SSPRK22`, default), `:SSPRK33`, `:SSPRK104`, Runge-Kutta 4 (`:RK4`).
+Time integration use OrdinaryDiffEq algorithms (default to `SSPRK22()`)
 
 For IMEX Scheme RK methods: H-CN(2,2,2) `:H_CN_222`, H-DIRK2(2,2,2) `:H_DIRK2_222`, H-LDIRK2(2,2,2) `:H_LDIRK2_222`, H-LDIRK3(2,2,2) `:H_LDIRK3_222`, SSP-LDIRK(3,3,2) `:SSP_LDIRK_332`. For more information see:
 
@@ -116,7 +116,7 @@ u0 = u0_func(mesh.x)
 #Setup problem:
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 #Solve problem using Kurganov-Tadmor scheme and Strong Stability Preserving RK33
-@time sol = solve(prob, FVKTAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
+@time sol = solve(prob, FVKTAlgorithm();progress=true, TimeIntegrator = SSPRK33())
 
 #Plot
 using Plots
