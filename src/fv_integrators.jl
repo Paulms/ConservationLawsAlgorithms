@@ -1,40 +1,24 @@
-immutable FVIntegrator{T1,mType,tType,uType,F,G}
+immutable FVIntegrator{T1,mType,tType,uType,tAlgType,F,G}
   alg::T1
   mesh::mType
-  u::uType
+  u0::uType
   Flux::F
   Jf :: G
-  CFL :: Real
-  t::tType
+  CFL :: Number
   M::Int
-  numiters::Int
-  typeTIntegration::Symbol
+  TimeAlgorithm::tAlgType
   tend::tType
-  save_everystep::Bool
-  ts::Vector{tType}
-  timeseries::Vector{uType}
-  timeseries_steps::Int
-  progressbar::Bool
-  progressbar_name::String
 end
 
-immutable FVDiffIntegrator{T1,mType,tType,uType,F,G,B}
+immutable FVDiffIntegrator{T1,mType,tType,uType,tAlgType,F,G,B}
   alg::T1
   mesh::mType
-  u::uType
+  u0::uType
   Flux::F
   DiffMat::B
   Jf :: G
   CFL :: Real
-  t::tType
   M::Int
-  numiters::Int
-  typeTIntegration::Symbol
+  TimeAlgorithm::tAlgType
   tend::tType
-  save_everystep::Bool
-  ts::Vector{tType}
-  timeseries::Vector{uType}
-  timeseries_steps::Int
-  progressbar::Bool
-  progressbar_name::String
 end

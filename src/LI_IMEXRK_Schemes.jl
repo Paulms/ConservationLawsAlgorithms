@@ -41,16 +41,17 @@ function LI_IMEX_RK_Algorithm(;scheme = :H_CN_222, solver = :Direct)
   LI_IMEX_RK_Algorithm(RKTable(scheme), solver)
 end
 
-function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{LI_IMEX_RK_Algorithm,
-  Uniform1DFVMesh,tType,uType,F,G,B})
+function FV_solve{tType,uType,tAlgType,F,G,B}(integrator::FVDiffIntegrator{LI_IMEX_RK_Algorithm,
+  Uniform1DFVMesh,tType,uType,tAlgType,F,G,B};timeseries_steps = 1, maxiters = 1000000,
+  saveat=tType[], progressbar_name="LI-IMEX-RK",progress=false,save_everystep = false,kwargs...)
   @fv_diffdeterministicpreamble
   @fv_uniform1Dmeshpreamble
-  @fv_generalpreamble
+  @fv_nt_generalpreamble
   @unpack RKTab, solver = integrator.alg
   Φ = view(u',:)
   crj = unif_crj(3) #eno weights for weno5
   order = 5         #weno5
-  @inbounds for i=1:numiters
+  @inbounds for i=1:maxiters
     α = maxfluxρ(u,Jf)
     dt = CFL*dx/α
     Ki = zeros(Φ)
@@ -89,9 +90,9 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{LI_IMEX_RK_Alg
     end
     u = reshape(Φ,M,N)'
     t += dt
-    @fv_footer
+    @fv_nt_footer
   end
-  @fv_postamble
+  @fv_nt_postamble
 end
 
 function assamble_B(Φ,N,M,DiffMat,bdtype)

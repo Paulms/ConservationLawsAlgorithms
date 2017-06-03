@@ -58,8 +58,8 @@ N = 100
 mesh = Uniform1DFVMesh(N,0.0,10.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsWithDiffusionProblem(u0,f,BB,CFL,Tend,mesh;Jf=Jf)
-@time sol = solve(prob, FVKTAlgorithm();progressbar=true)
-@time sol2 = solve(prob, LI_IMEX_RK_Algorithm();progressbar=true)
+@time sol = solve(prob, FVKTAlgorithm();progress=true)
+@time sol2 = solve(prob, LI_IMEX_RK_Algorithm();progress=true,saveat=0.01)
 
 #Plot
 using(Plots)

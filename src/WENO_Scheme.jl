@@ -86,8 +86,20 @@ end
   end
 end
 
+@def weno_time_loop begin
+  α = maxfluxρ(u0,Jf)
+  dt = CFL*dx/α
+  @fv_setup_time_integrator
+  @inbounds for i in timeIntegrator
+    α = maxfluxρ(timeIntegrator.u,Jf)
+    dt = CFL*dx/α
+    set_proposed_dt!(timeIntegrator, dt)
+  end
+  @fv_postamble
+end
+
 function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVCompWENOAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G})
+  Uniform1DFVMesh,tType,uType,F,G};kwargs...)
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
@@ -110,16 +122,7 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVCompWENOAlgorithm,
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    α = maxfluxρ(u,Jf)
-    dt = CFL*dx/α
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @weno_time_loop
 end
 
 ################################################################
@@ -137,7 +140,7 @@ end
 end
 
 function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVCompMWENOAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G})
+  Uniform1DFVMesh,tType,uType,F,G};kwargs...)
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
@@ -160,16 +163,7 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVCompMWENOAlgorithm
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    α = maxfluxρ(u,Jf)
-    dt = CFL*dx/α
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @weno_time_loop
 end
 ###############################################################
 #Characteristic Wise WENO algorithm (Spectral)
@@ -227,7 +221,7 @@ end
 end
 
 function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVSpecMWENOAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G})
+  Uniform1DFVMesh,tType,uType,F,G};kwargs...)
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
@@ -243,14 +237,5 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVSpecMWENOAlgorithm
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    α = maxfluxρ(u,Jf)
-    dt = CFL*dx/α
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @weno_time_loop
 end

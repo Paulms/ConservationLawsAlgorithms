@@ -10,8 +10,8 @@ immutable LaxWendroff2sAlgorithm <: AbstractFVAlgorithm end
 # |---|---|---|......|---|---|
 # 1   2   3   4 ... N-1  N  N+1
 
-function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{LaxWendroff2sAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G})
+function FV_solve{tType,uType,tAlgType,F,G}(integrator::FVIntegrator{LaxWendroff2sAlgorithm,
+  Uniform1DFVMesh,tType,uType,tAlgType,F,G};kwargs...)
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble

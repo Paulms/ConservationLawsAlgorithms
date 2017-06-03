@@ -1,6 +1,8 @@
 __precompile__()
 module ConservationLawsDiffEq
   using DiffEqBase, DiffEqPDEBase
+  using Reexport
+  @reexport using OrdinaryDiffEq
 
   using Parameters, Compat, Juno
   using ForwardDiff, Interpolations, IterativeSolvers

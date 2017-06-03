@@ -95,8 +95,8 @@ end
   end
 end
 
-function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVKTAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G})
+function FV_solve{tType,uType,tAlgType,F,G}(integrator::FVIntegrator{FVKTAlgorithm,
+  Uniform1DFVMesh,tType,uType,tAlgType,F,G};kwargs...)
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
@@ -107,24 +107,15 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVKTAlgorithm,
     ngc = 1
     @boundary_header
     @kt_rhs_header
-    # Diffusion
-    pp = zeros(N+1,M)
+    @no_diffusion_term
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @fv_timeloop
 end
 
-function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVKTAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G,B})
+function FV_solve{tType,uType,tAlgType,F,G,B}(integrator::FVDiffIntegrator{FVKTAlgorithm,
+  Uniform1DFVMesh,tType,uType,tAlgType,F,G,B};kwargs...)
   @fv_diffdeterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
@@ -147,13 +138,5 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVKTAlgorithm,
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf, DiffMat)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @fv_difftimeloop
 end

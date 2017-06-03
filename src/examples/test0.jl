@@ -24,11 +24,11 @@ N = 200
 mesh = Uniform1DFVMesh(N,0.0,1.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
-@time sol = solve(prob, FVKTAlgorithm();progressbar=true)
-@time sol2 = solve(prob, LaxFriedrichsAlgorithm();progressbar=true)
-@time sol3 = solve(prob, LaxWendroff2sAlgorithm();progressbar=true)
-@time sol4 = solve(prob, FVCompWENOAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
-@time sol5 = solve(prob, FVCompMWENOAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
+@time sol = solve(prob, FVKTAlgorithm();progress=true)
+@time sol2 = solve(prob, LaxFriedrichsAlgorithm();progress=true)
+@time sol3 = solve(prob, LaxWendroff2sAlgorithm();progress=true)
+@time sol4 = solve(prob, FVCompWENOAlgorithm();progress=true, TimeAlgorithm = SSPRK33())
+@time sol5 = solve(prob, FVCompMWENOAlgorithm();progress=true, TimeAlgorithm = SSPRK33())
 
 #Plot
 using Plots

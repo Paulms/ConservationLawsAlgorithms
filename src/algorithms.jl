@@ -51,48 +51,44 @@ end
   @unpack N,x,dx,bdtype = integrator.mesh
 end
 @def fv_diffdeterministicpreamble begin
-  @unpack u,Flux,DiffMat,Jf,CFL,t,M,numiters,typeTIntegration,tend,
-  save_everystep,ts,timeseries,timeseries_steps,progressbar, progressbar_name = integrator
+  @unpack u0,Flux,DiffMat,Jf,CFL,M,TimeAlgorithm,tend = integrator
 end
 
 @def fv_deterministicpreamble begin
-  @unpack u,Flux,Jf,CFL,t,M,numiters,typeTIntegration,tend,
-  save_everystep,ts,timeseries,timeseries_steps,progressbar,
-  progressbar_name = integrator
+  @unpack u0,Flux,Jf,CFL,M,TimeAlgorithm,tend = integrator
 end
 
 @def fv_generalpreamble begin
-  progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
-  percentage = 0
-  limit = tend/10.0
-  timeStep = tend/timeseries_steps
-  timeLimit = timeStep
+  dt = zero(tend)
 end
 
 @def fv_postamble begin
-  progressbar && Juno.done(prog)
-  if ts[end] != t
-     push!(timeseries,copy(u))
-     push!(ts,t)
+  if timeIntegrator.sol.t[end] != tend
+    savevalues!(timeIntegrator)
   end
-  u,timeseries,ts
+  return(timeIntegrator.sol.u,timeIntegrator.sol.t)
 end
 
-@def fv_footer begin
-  if save_everystep && t>timeLimit
-     push!(timeseries,copy(u))
-     push!(ts,t)
-     timeLimit = timeLimit + timeStep
+@def fv_timeloop begin
+  #First dt
+  dt = cdt(u0, CFL, dx, Jf)
+  @fv_setup_time_integrator
+  @inbounds for i in timeIntegrator
+    dt = cdt(timeIntegrator.u, CFL, dx, Jf)
+    set_proposed_dt!(timeIntegrator, dt)
   end
-  if progressbar && t>limit
-    percentage = percentage + 10
-    limit = limit +tend/10.0
-    Juno.msg(prog,"dt="*string(dt))
-    Juno.progress(prog,percentage/100.0)
+  @fv_postamble
+end
+
+@def fv_difftimeloop begin
+  #First dt
+  dt = cdt(u0, CFL, dx, Jf, DiffMat)
+  @fv_setup_time_integrator
+  @inbounds for i in timeIntegrator
+    dt = cdt(timeIntegrator.u, CFL, dx, Jf, DiffMat)
+    set_proposed_dt!(timeIntegrator, dt)
   end
-  if (t>tend)
-    break
-  end
+  @fv_postamble
 end
 
 @def boundary_header begin
@@ -115,15 +111,25 @@ end
   for j = 1:N
     rhs[j,:] = - 1/dx * (hh[j+1,:]-hh[j,:]-(pp[j+1,:]-pp[j,:]))
   end
+  return(rhs)
 end
 
 @def no_diffusion_term begin
   pp = zeros(N+1,M)
 end
 
+@def fv_setup_time_integrator begin
+  rhs = zeros(u0)
+  function semidiscretef(t,u)
+    rhs!(rhs,u,N,M,dx,dt,bdtype)
+  end
+  prob = ODEProblem(semidiscretef, u0, (0.0,tend))
+  timeIntegrator = init(prob, SSPRK22();dt=dt, kwargs...)
+end
+
 # nflux must be capable of receiving vectors
 @def fv_method_with_nflux_common begin
-  function rhs!(rhs, uold, N, M, dx, dt, bdtype)
+  @inline function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     #Set ghost Cells
     @boundary_header
     # Numerical Fluxes
@@ -136,76 +142,62 @@ end
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @fv_timeloop
 end
 
-# Time integrators
-@def fv_deterministicloop begin
-  uold = copy(u)
-  if (typeTIntegration == :FORWARD_EULER)
-    rhs!(rhs, uold, N, M,dx, dt, bdtype)
-    u = uold + dt*rhs
-  elseif (typeTIntegration == :SSPRK22)
-    #FIRST Step
-    rhs!(rhs, uold, N, M,dx, dt, bdtype)
-    u = 0.5*(uold + dt*rhs)
-    #Second Step
-    rhs!(rhs, uold + dt*rhs, N, M,dx, dt, bdtype)
-    u = u + 0.5*(uold + dt*rhs)
-  elseif (typeTIntegration == :RK4)
-    #FIRST Step
-    rhs!(rhs, uold, N, M,dx, dt, bdtype)
-    u = uold + dt/6*rhs
-    #Second Step
-    rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, bdtype)
-    u = u + dt/3*rhs
-    #Third Step
-    rhs!(rhs, uold+dt/2*rhs, N, M,dx, dt, bdtype)
-    u = u + dt/3*rhs
-    #Fourth Step
-    rhs!(rhs, uold+dt*rhs, N, M,dx, dt, bdtype)
-    u = u + dt/6 *rhs
-  elseif (typeTIntegration == :SSPRK33)
-    rhs!(rhs, uold, N, M,dx, dt, bdtype)
-    tmp = uold + dt*rhs
-    rhs!(rhs, tmp, N, M,dx, dt, bdtype)
-    tmp = (3*uold + tmp + dt*rhs) / 4
-    rhs!(rhs, tmp, N, M,dx, dt/2, bdtype)
-    u = (uold + 2*tmp + 2*dt*rhs) / 3
-  elseif (typeTIntegration == :SSPRK104)
-    dt_6 = dt/6
-    dt_3 = dt/3
-    dt_2 = dt/2
-    rhs!(rhs, uold, N, M,dx, dt, bdtype)
-    tmp = uold + dt_6 * rhs # u₁
-    rhs!(rhs, tmp, N, M,dx, dt_6, bdtype)
-    tmp = tmp + dt_6 * rhs # u₂
-    rhs!(rhs, tmp, N, M,dx, dt_3, bdtype)
-    tmp = tmp + dt_6 * rhs # u₃
-    rhs!(rhs, tmp, N, M,dx, dt_2, bdtype)
-    u₄ = tmp + dt_6 * rhs # u₄
-    k₄ = zeros(rhs)
-    rhs!(k₄, u₄, N, M,dx, dt_3, bdtype)
-    tmp = (3*uold + 2*u₄ + 2*dt_6 * k₄) / 5 # u₅
-    rhs!(rhs, tmp, N, M,dx, dt_3, bdtype)
-    tmp = tmp + dt_6 * rhs # u₆
-    rhs!(rhs, tmp, N, M,dx, dt_2, bdtype)
-    tmp = tmp + dt_6 * rhs # u₇
-    rhs!(rhs, tmp, N, M,dx, 2*dt_3, bdtype)
-    tmp = tmp + dt_6 * rhs # u₈
-    rhs!(rhs, tmp, N, M,dx, 5*dt_6, bdtype)
-    tmp = tmp + dt_6 * rhs # u₉
-    rhs!(rhs, tmp, N, M,dx, dt, bdtype)
-    u = (uold + 9*(u₄ + dt_6*k₄) + 15*(tmp + dt_6*rhs)) / 25
+#Low level schemes (Those who use custom time integration)
+@def fv_nt_generalpreamble begin
+  timeseries = Vector{typeof(u0)}(0)
+  push!(timeseries,copy(u0))
+  t = zero(tend)
+  ts = Float64[t]
+  saveat_vec = Vector{typeof(tend)}(0)
+  if typeof(saveat) <: Number
+    saveat_vec = convert(Vector{typeof(tend)},saveat:saveat:tend)
+    # Exclude the endpoint because of floating point issues
   else
-    throw("Time integrator not defined...")
+    saveat_vec =  convert(Vector{typeof(tend)},collect(saveat))
+  end
+
+  if !isempty(saveat_vec) && saveat_vec[end] < tend
+    push!(saveat_vec, tend)
+  end
+  saveiter = 1
+  savevec = true
+  progress && (prog = Juno.ProgressBar(name=progressbar_name))
+  percentage = 0
+  limit = tend/10.0
+  dt = zero(tend)
+  u = copy(u0)
+end
+
+@def fv_nt_postamble begin
+  progress && Juno.done(prog)
+  if ts[end] != t
+     push!(timeseries,copy(u))
+     push!(ts,t)
+  end
+  timeseries,ts
+end
+
+@def fv_nt_footer begin
+  #TODO: interpolation to save at exact time?
+  if (save_everystep && (i%timeseries_steps == 0)) || (savevec && t>saveat_vec[saveiter])
+     saveiter = min(sum(saveat_vec .< t)+1, size(saveat_vec,1))
+     if saveiter == size(saveat_vec,1)
+       savevec = false
+     end
+     push!(timeseries,copy(u))
+     push!(ts,t)
+  end
+
+  if progress && t>limit
+    percentage = percentage + 10
+    limit = limit +tend/10.0
+    Juno.msg(prog,"dt="*string(dt))
+    Juno.progress(prog,percentage/100.0)
+  end
+  if (t>tend)
+    break
   end
 end

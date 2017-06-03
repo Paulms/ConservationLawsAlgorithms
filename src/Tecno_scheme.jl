@@ -91,8 +91,8 @@ end
   hh = ff - dd
 end
 
-function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVTecnoAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G})
+function FV_solve{tType,uType,tAlgType,F,G}(integrator::FVIntegrator{FVTecnoAlgorithm,
+  Uniform1DFVMesh,tType,uType,tAlgType,F,G};kwargs...)
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
@@ -108,13 +108,5 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVTecnoAlgorithm,
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @fv_timeloop
 end
