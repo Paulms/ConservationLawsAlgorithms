@@ -6,6 +6,7 @@ module ConservationLawsDiffEq
 
   using Parameters, Compat, Juno
   using ForwardDiff, Interpolations, IterativeSolvers
+  using RecipesBase
 
   # Interfaces
   import DiffEqBase: solve, @def
@@ -30,6 +31,7 @@ module ConservationLawsDiffEq
   include("fv_solve.jl")
   include("errors.jl")
   include("ArrayUtils.jl")
+  include("plotRecipe.jl")
 
   #Algoritms
   include("KT_scheme.jl")
