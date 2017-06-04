@@ -1,4 +1,4 @@
-@recipe function f(sol::AbstractFVSolution, t = size(sol.t,1))
+@recipe function f(sol::AbstractFVSolution; tidx = size(sol.t,1), uvars=0)
     seriestype  :=  :path
     xguide --> "x"
     yguide --> "u"
@@ -7,5 +7,9 @@
       push!(labels,"u$i")
     end
     label --> reshape(labels,1,length(labels))
-    sol.prob.mesh.x, sol.u[t]
+    yvector = sol.u[tidx]
+    if uvars != 0
+      yvector = sol.u[tidx][:,uvars]
+    end
+    sol.prob.mesh.x, yvector
 end
