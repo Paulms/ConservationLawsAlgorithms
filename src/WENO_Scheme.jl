@@ -86,6 +86,19 @@ end
   end
 end
 
+@def weno_common_time_loop begin
+  uold = similar(u)
+  rhs = zeros(u)
+  @inbounds for i=1:numiters
+    α = maxfluxρ(u,Jf)
+    dt = CFL*dx/α
+    t += dt
+    @fv_deterministicloop
+    @fv_footer
+  end
+  @fv_postamble
+end
+
 function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVCompWENOAlgorithm,
   Uniform1DFVMesh,tType,uType,F,G})
   @fv_deterministicpreamble
@@ -110,16 +123,7 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVCompWENOAlgorithm,
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    α = maxfluxρ(u,Jf)
-    dt = CFL*dx/α
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @weno_common_time_loop
 end
 
 ################################################################
@@ -160,16 +164,7 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVCompMWENOAlgorithm
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    α = maxfluxρ(u,Jf)
-    dt = CFL*dx/α
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @weno_common_time_loop
 end
 ###############################################################
 #Characteristic Wise WENO algorithm (Spectral)
@@ -243,14 +238,5 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVSpecMWENOAlgorithm
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    α = maxfluxρ(u,Jf)
-    dt = CFL*dx/α
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @weno_common_time_loop
 end

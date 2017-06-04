@@ -112,15 +112,7 @@ function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVKTAlgorithm,
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @fv_common_time_loop
 end
 
 function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVKTAlgorithm,
@@ -132,7 +124,6 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVKTAlgorithm,
 
   function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     #SEt ghost Cells
-    ngc = 1
     @boundary_header
     @kt_rhs_header
     # Diffusion
@@ -147,13 +138,5 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVKTAlgorithm,
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf, DiffMat)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @fv_common_diff_time_loop
 end

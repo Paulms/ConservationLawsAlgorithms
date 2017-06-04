@@ -95,6 +95,30 @@ end
   end
 end
 
+@def fv_common_time_loop begin
+  uold = similar(u)
+  rhs = zeros(u)
+  @inbounds for i=1:numiters
+    dt = cdt(u, CFL, dx, Jf)
+    t += dt
+    @fv_deterministicloop
+    @fv_footer
+  end
+  @fv_postamble
+end
+
+@def fv_common_diff_time_loop begin
+  uold = similar(u)
+  rhs = zeros(u)
+  @inbounds for i=1:numiters
+    dt = cdt(u, CFL, dx, Jf, DiffMat)
+    t += dt
+    @fv_deterministicloop
+    @fv_footer
+  end
+  @fv_postamble
+end
+
 @def boundary_header begin
   uu = copy(uold)
   if bdtype == :PERIODIC
@@ -136,15 +160,7 @@ end
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @fv_common_time_loop
 end
 
 # Time integrators

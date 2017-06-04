@@ -51,15 +51,7 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVESJPAlgorith
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @fv_common_diff_time_loop
 end
 
 function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVESJPeAlgorithm,
@@ -87,13 +79,5 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVESJPeAlgorit
     @boundary_update
     @update_rhs
   end
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
+  @fv_common_diff_time_loop
 end
