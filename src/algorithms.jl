@@ -111,7 +111,6 @@ end
   for j = 1:N
     rhs[j,:] = - 1/dx * (hh[j+1,:]-hh[j,:]-(pp[j+1,:]-pp[j,:]))
   end
-  return(rhs)
 end
 
 @def no_diffusion_term begin
@@ -120,8 +119,8 @@ end
 
 @def fv_setup_time_integrator begin
   rhs = zeros(u0)
-  function semidiscretef(t,u)
-    rhs!(rhs,u,N,M,dx,dt,bdtype)
+  function semidiscretef(t,u,du)
+    rhs!(du,u,N,M,dx,dt,bdtype)
   end
   prob = ODEProblem(semidiscretef, u0, (0.0,tend))
   timeIntegrator = init(prob, SSPRK22();dt=dt, kwargs...)

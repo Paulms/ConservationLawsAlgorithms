@@ -4,7 +4,7 @@
 include("./../ConservationLawsDiffEq.jl")
 using ConservationLawsDiffEq
 
-const CFL = 0.1
+const CFL = 0.5
 const Tend = 1.0
 
 function Jf(u::Vector)
