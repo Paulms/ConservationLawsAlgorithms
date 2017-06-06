@@ -123,7 +123,6 @@ function FV_solve{tType,uType,tAlgType,F,G,B}(integrator::FVDiffIntegrator{FVKTA
 
   function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     #SEt ghost Cells
-    ngc = 1
     @boundary_header
     @kt_rhs_header
     # Diffusion
