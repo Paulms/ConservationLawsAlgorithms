@@ -20,10 +20,13 @@ function u0_func(xx)
   return uinit
 end
 
-N = 200
-mesh = Uniform1DFVMesh(N,0.0,1.0,:PERIODIC)
-u0 = u0_func(mesh.x)
-prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
+function get_problem(N)
+  mesh = Uniform1DFVMesh(N,0.0,1.0,:PERIODIC)
+  u0 = u0_func(mesh.x)
+  prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
+end
+prob = get_problem(10) #compile
+prob = get_problem(100) #test
 @time sol = solve(prob, FVKTAlgorithm();progress=true)
 @time sol2 = solve(prob, LaxFriedrichsAlgorithm();progress=true)
 @time sol3 = solve(prob, LaxWendroff2sAlgorithm();progress=true)

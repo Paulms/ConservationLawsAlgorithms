@@ -91,30 +91,6 @@ end
   @fv_postamble
 end
 
-@def fv_common_time_loop begin
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
-end
-
-@def fv_common_diff_time_loop begin
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf, DiffMat)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
-end
-
 @def boundary_header begin
   uu = copy(uold)
   if bdtype == :PERIODIC
@@ -142,7 +118,6 @@ end
 end
 
 @def fv_setup_time_integrator begin
-  rhs = zeros(u0)
   function semidiscretef(t,u,du)
     rhs!(du,u,N,M,dx,dt,bdtype)
   end
