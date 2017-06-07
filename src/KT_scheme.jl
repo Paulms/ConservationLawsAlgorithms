@@ -101,7 +101,6 @@ function FV_solve{tType,uType,tAlgType,F,G}(integrator::FVIntegrator{FVKTAlgorit
 
   function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     #SEt ghost Cells
-    ngc = 1
     @boundary_header
     @kt_rhs_header
     @no_diffusion_term
@@ -127,9 +126,6 @@ function FV_solve{tType,uType,tAlgType,F,G,B}(integrator::FVDiffIntegrator{FVKTA
     ∇u_ap = ∇u/dx#(uu[2:N,:]-uu[1:N-1,:])/dx
     for j = 1:(N+1)
       pp[j,:] = 0.5*(DiffMat(uu[j,:])+DiffMat(uu[j-1,:]))*∇u_ap[j,1:M]
-    end
-    if bdtype == :ZERO_FLUX
-      pp[1,:] = 0.0_dp; pp[N+1,:] = 0.0_dp
     end
     @boundary_update
     @update_rhs
