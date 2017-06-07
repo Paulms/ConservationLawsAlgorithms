@@ -24,10 +24,14 @@ Nflux(ϕl::Vector, ϕr::Vector) = 0.5*(f(ϕl)+f(ϕr))
 exact_sol(x::Vector, t::Float64) = hcat(0.5*(sin(4*π*(-t+x))+sin(4*π*(t+x))),
 0.5*(sin(4*π*(-t+x))-sin(4*π*(t+x))))
 
-N = 500
-mesh = Uniform1DFVMesh(N,-1.0,1.0,:PERIODIC)
-u0 = u0_func(mesh.x)
-prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
+function get_problem(N)
+  mesh = Uniform1DFVMesh(N,-1.0,1.0,:PERIODIC)
+  u0 = u0_func(mesh.x)
+  prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
+  prob
+end
+prob = get_problem(10) #compile
+prob = get_problem(500) #run
 @time sol = solve(prob, FVKTAlgorithm();progress=true)
 @time sol2 = solve(prob, FVTecnoAlgorithm(Nflux;order=3);progress=true)
 @time sol3 = solve(prob, FVCompWENOAlgorithm();progress=true, TimeAlgorithm = SSPRK33())
@@ -38,7 +42,7 @@ prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 #writedlm("test_2_Tecnoreference.txt", [mesh.x sol2.u[end]], '\t')
 #reference = readdlm("test_2_ktreference.txt");
 
-get_L1_errors(sol, exact_sol; nvar = 1) #43.3
+get_L1_errors(sol, exact_sol; nvar = 1) #43.2779
 get_L1_errors(sol2, exact_sol; nvar = 1) #0.0790
 get_L1_errors(sol3, exact_sol; nvar = 1) #0.00545
 get_L1_errors(sol4, exact_sol; nvar = 1) #0.00558

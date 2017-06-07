@@ -90,9 +90,6 @@ end
     hh[j,:] = 0.5*(FΦr[j,:]+FΦl[j,:])-0.5*(uu[j,:]-uu[j-1,:])*aa[j]+
     aa[j]*(1-λ*aa[j])/4*(∇u[j,1:M]+∇u[j-1,1:M]) + λ*dx/2*(aa[j])^2*∇Ψ[j,:]
   end
-  if bdtype == :ZERO_FLUX
-    hh[1,:] = 0.0_dp; hh[N+1,:] = 0.0_dp
-  end
 end
 
 function FV_solve{tType,uType,tAlgType,F,G}(integrator::FVIntegrator{FVKTAlgorithm,
