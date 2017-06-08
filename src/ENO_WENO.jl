@@ -1,7 +1,7 @@
 #ENO coefficients for uniform mesh
 function unif_crj(k::Int)
   if k == 1
-    return([1;1])
+    return(ones(2,1))
   end
   crj = zeros(k+1,k)
   for i = 1:(k+1)
