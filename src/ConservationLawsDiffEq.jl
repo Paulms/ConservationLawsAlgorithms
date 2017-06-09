@@ -45,6 +45,7 @@ module ConservationLawsDiffEq
 
   export solve
   export Uniform1DFVMesh
+  export FVSolution, save_csv
   export ConservationLawsProblem, ConservationLawsWithDiffusionProblem
   export FVKTAlgorithm, FVTecnoAlgorithm, FVESJPAlgorithm
   export FVCompWENOAlgorithm, FVCompMWENOAlgorithm, FVSpecMWENOAlgorithm
