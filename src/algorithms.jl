@@ -13,14 +13,14 @@ function cdt(u::AbstractArray, CFL, dx, JacF, BB)
   N = size(u,1)
   for i in 1:N
     maxρ = max(maxρ, fluxρ(u[i,:],JacF))
-    maxρB = max(maxρB, maximum(abs(eigvals(BB(u[i,:])))))
+    maxρB = max(maxρB, maximum(abs,eigvals(BB(u[i,:]))))
   end
   CFL/(1/dx*maxρ+1/(2*dx^2)*maxρB)
 end
 
 @inline function fluxρ(uj::Vector,JacF)
   #maximum(abs(eigvals(Jf(uj))))
-  maximum(abs(eigvals(JacF(uj))))
+  maximum(abs,eigvals(JacF(uj)))
 end
 
 @inline function maxfluxρ(u::AbstractArray,JacF)
