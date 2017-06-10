@@ -37,7 +37,7 @@ immutable LI_IMEX_RK_Algorithm{F} <: AbstractFVAlgorithm
   RKTab :: RKTable
   linsolve :: F
 end
-function LI_IMEX_RK_Algorithm(;scheme = :H_CN_222, linsolve = DEFAULT_LINSOLVE)
+function LI_IMEX_RK_Algorithm(;scheme = :H_CN_222, linsolve = LinSolveFactorize(lufact))
   LI_IMEX_RK_Algorithm(RKTable(scheme), linsolve)
 end
 
@@ -76,7 +76,7 @@ function FV_solve{sType,tType,uType,tAlgType,F,B}(integrator::FVDiffIntegrator{L
       Cϕ = hh[2:N+1,:]-hh[1:N,:]
       b = -1/dx*view(Cϕ',:)+1\dx^2*BB*Φh
       #Solve linear system
-      linsolve(Ki,A,b)
+      linsolve(Ki,A,b,true)
       push!(Kj,copy(Ki))
     end
     for j = 1:RKTab.order

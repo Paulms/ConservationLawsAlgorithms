@@ -5,7 +5,7 @@
 # and mechanics, 2013
 
 include("./../ConservationLawsDiffEq.jl")
-using ConservationLawsDiffEq
+using .ConservationLawsDiffEq
 
 # Parameters:
 const CFL = 0.25
