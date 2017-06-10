@@ -16,13 +16,13 @@ f(u::Vector) = [0.0 cc;cc 0.0]*u
 function u0_func(xx)
   N = size(xx,1)
   uinit = zeros(N, 2)
-  uinit[:,1] = sin(4*π*xx)
+  uinit[:,1] = sin.(4*π*xx)
   return uinit
 end
 
 Nflux(ϕl::Vector, ϕr::Vector) = 0.5*(f(ϕl)+f(ϕr))
-exact_sol(x::Vector, t::Float64) = hcat(0.5*(sin(4*π*(-t+x))+sin(4*π*(t+x))),
-0.5*(sin(4*π*(-t+x))-sin(4*π*(t+x))))
+exact_sol(x::Vector, t::Float64) = hcat(0.5*(sin.(4*π*(-t+x))+sin.(4*π*(t+x))),
+0.5*(sin.(4*π*(-t+x))-sin.(4*π*(t+x))))
 
 N = 500
 mesh = Uniform1DFVMesh(N,-1.0,1.0,:PERIODIC)
@@ -38,11 +38,11 @@ prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 #writedlm("test_2_Tecnoreference.txt", [mesh.x sol2.u[end]], '\t')
 #reference = readdlm("test_2_ktreference.txt");
 
-get_L1_errors(sol, exact_sol; nvar = 1) #43.3
-get_L1_errors(sol2, exact_sol; nvar = 1) #0.0790
-get_L1_errors(sol3, exact_sol; nvar = 1) #0.00545
-get_L1_errors(sol4, exact_sol; nvar = 1) #0.00558
-get_L1_errors(sol5, exact_sol; nvar = 1) #0.00558
+get_L1_errors(sol, exact_sol; nvar = 1) #43.27793
+get_L1_errors(sol2, exact_sol; nvar = 1) #0.0790408
+get_L1_errors(sol3, exact_sol; nvar = 1) #0.0054492
+get_L1_errors(sol4, exact_sol; nvar = 1) #0.005577646
+get_L1_errors(sol5, exact_sol; nvar = 1) #0.005577646
 #Plot
 using Plots
 plot(sol, tidx=1, uvars=1, lab="ho",line=(:dot,2))

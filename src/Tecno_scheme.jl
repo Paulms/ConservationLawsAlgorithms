@@ -70,7 +70,7 @@ end
   end
 
   for j = 1:(N+1)
-    dd[j,:] = MatR[j]*diagm(abs(MatΛ[j]))*wdiff[j,:]
+    dd[j,:] = MatR[j]*diagm(abs.(MatΛ[j]))*wdiff[j,:]
   end
 
   ff = zeros(N+1,M)

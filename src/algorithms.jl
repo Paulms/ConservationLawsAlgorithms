@@ -13,14 +13,14 @@ function cdt(u::AbstractArray, CFL, dx, JacF, BB)
   N = size(u,1)
   for i in 1:N
     maxρ = max(maxρ, fluxρ(u[i,:],JacF))
-    maxρB = max(maxρB, maximum(abs(eigvals(BB(u[i,:])))))
+    maxρB = max(maxρB, maximum(abs,eigvals(BB(u[i,:]))))
   end
   CFL/(1/dx*maxρ+1/(2*dx^2)*maxρB)
 end
 
 @inline function fluxρ(uj::Vector,JacF)
   #maximum(abs(eigvals(Jf(uj))))
-  maximum(abs(eigvals(JacF(uj))))
+  maximum(abs,eigvals(JacF(uj)))
 end
 
 @inline function maxfluxρ(u::AbstractArray,JacF)
@@ -66,7 +66,7 @@ end
   if timeIntegrator.sol.t[end] != tend
     savevalues!(timeIntegrator)
   end
-  return(timeIntegrator.sol.u,timeIntegrator.sol.t)
+  return(timeIntegrator.sol.u,timeIntegrator.sol.t, timeIntegrator.sol.retcode,timeIntegrator.sol.interp,timeIntegrator.sol.dense)
 end
 
 @def fv_timeloop begin
@@ -200,7 +200,7 @@ end
      push!(timeseries,copy(u))
      push!(ts,t)
   end
-  timeseries,ts
+  timeseries,ts,:Default,LinearInterpolation(ts,timeseries),true
 end
 
 @def fv_nt_footer begin

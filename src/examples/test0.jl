@@ -16,7 +16,7 @@ f(u::Vector) = u.^2/2
 function u0_func(xx)
   N = size(xx,1)
   uinit = zeros(N, 1)
-  uinit[:,1] = sin(2*π*xx)
+  uinit[:,1] = sin.(2*π*xx)
   return uinit
 end
 

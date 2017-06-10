@@ -127,7 +127,8 @@ function FV_solve{tType,uType,tAlgType,F,G,B}(integrator::FVDiffIntegrator{FVKTA
     @kt_rhs_header
     # Diffusion
     pp = zeros(N+1,M)
-    ∇u_ap = ∇u/dx#(uu[2:N,:]-uu[1:N-1,:])/dx
+    ∇u_ap = zeros(uu)
+    ∇u_ap[:,:] = ∇u/dx#(uu[2:N,:]-uu[1:N-1,:])/dx
     for j = 1:(N+1)
       pp[j,:] = 0.5*(DiffMat(uu[j,:])+DiffMat(uu[j-1,:]))*∇u_ap[j,1:M]
     end
