@@ -45,10 +45,10 @@ get_L1_errors(sol4, exact_sol; nvar = 1) #0.005577646
 get_L1_errors(sol5, exact_sol; nvar = 1) #0.005577646
 #Plot
 using Plots
-plot(sol, tidx=1, uvars=1, lab="ho",line=(:dot,2))
-plot!(sol, uvars=1, lab="KT h",line = (:dot,2))
-plot!(sol2, uvars=1,lab="Tecno h",line=(:dot,3))
-plot!(sol3, uvars=1,lab="Comp WENO h",line=(:dot,3))
-plot!(sol4, uvars=1,lab="Comp MWENO h",line=(:dot,3))
-plot!(sol5, uvars=1,lab="Spec MWENO h",line=(:dot,3))
+plot(sol, tidx=1, vars=1, lab="ho",line=(:dot,2))
+plot!(sol, vars=1, lab="KT h",line = (:dot,2))
+plot!(sol2, vars=1,lab="Tecno h",line=(:dot,3))
+plot!(sol3, vars=1,lab="Comp WENO h",line=(:dot,3))
+plot!(sol4, vars=1,lab="Comp MWENO h",line=(:dot,3))
+plot!(sol5, vars=1,lab="Spec MWENO h",line=(:dot,3))
 plot!(mesh.x, exact_sol(mesh.x,Tend)[:,1],lab="Ref")

@@ -52,9 +52,9 @@ prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
 
 #Plot
 using Plots
-plot(sol, tidx=1, uvars=1, lab="ho",line=(:dot,2))
-plot!(sol, uvars=1,lab="KT h")
-plot!(sol2, uvars=1,lab="Tecno h")
-plot!(sol3, uvars=1,lab="Comp WENO5 h")
-plot!(sol4, uvars=1,lab="Comp MWENO5 h")
-plot!(sol5, uvars=1,lab="Spec MWENO5 h")
+plot(sol, tidx=1, vars=1, lab="ho",line=(:dot,2))
+plot!(sol, vars=1,lab="KT h")
+plot!(sol2, vars=1,lab="Tecno h")
+plot!(sol3, vars=1,lab="Comp WENO5 h")
+plot!(sol4, vars=1,lab="Comp MWENO5 h")
+plot!(sol5, vars=1,lab="Spec MWENO5 h")
