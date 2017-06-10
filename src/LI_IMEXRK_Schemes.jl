@@ -41,8 +41,8 @@ function LI_IMEX_RK_Algorithm(;scheme = :H_CN_222, solver = :Direct)
   LI_IMEX_RK_Algorithm(RKTable(scheme), solver)
 end
 
-function FV_solve{tType,uType,tAlgType,F,G,B}(integrator::FVDiffIntegrator{LI_IMEX_RK_Algorithm,
-  Uniform1DFVMesh,tType,uType,tAlgType,F,G,B};timeseries_steps = 1, maxiters = 1000000,
+function FV_solve{tType,uType,tAlgType,F,B}(integrator::FVDiffIntegrator{LI_IMEX_RK_Algorithm,
+  Uniform1DFVMesh,tType,uType,tAlgType,F,B};timeseries_steps = 1, maxiters = 1000000,
   saveat=tType[], progressbar_name="LI-IMEX-RK",progress=false,save_everystep = false,kwargs...)
   @fv_diffdeterministicpreamble
   @fv_uniform1Dmeshpreamble
@@ -52,7 +52,7 @@ function FV_solve{tType,uType,tAlgType,F,G,B}(integrator::FVDiffIntegrator{LI_IM
   crj = unif_crj(3) #eno weights for weno5
   order = 5         #weno5
   @inbounds for i=1:maxiters
-    α = maxfluxρ(u,Jf)
+    α = maxfluxρ(u,Flux)
     dt = CFL*dx/α
     Ki = zeros(Φ)
     Kj = Vector{typeof(Ki)}(0)

@@ -1,33 +1,32 @@
-function cdt(u::Matrix, CFL, dx,JacF)
+function cdt(u::Matrix, CFL, dx,f)
   maxρ = 0
   N = size(u,1)
   for i in 1:N
-    maxρ = max(maxρ, fluxρ(u[i,:],JacF))
+    maxρ = max(maxρ, fluxρ(u[i,:],f))
   end
   CFL/(1/dx*maxρ)
 end
 
-function cdt(u::AbstractArray, CFL, dx, JacF, BB)
+function cdt(u::AbstractArray, CFL, dx, f, BB)
   maxρ = 0
   maxρB = 0
   N = size(u,1)
   for i in 1:N
-    maxρ = max(maxρ, fluxρ(u[i,:],JacF))
+    maxρ = max(maxρ, fluxρ(u[i,:],f))
     maxρB = max(maxρB, maximum(abs,eigvals(BB(u[i,:]))))
   end
   CFL/(1/dx*maxρ+1/(2*dx^2)*maxρB)
 end
 
-@inline function fluxρ(uj::Vector,JacF)
-  #maximum(abs(eigvals(Jf(uj))))
-  maximum(abs,eigvals(JacF(uj)))
+@inline function fluxρ(uj::Vector,f)
+  maximum(abs,eigvals(f(Val{:jac}, uj)))
 end
 
-@inline function maxfluxρ(u::AbstractArray,JacF)
+@inline function maxfluxρ(u::AbstractArray,f)
     maxρ = 0
     N = size(u,1)
     for i in 1:N
-      maxρ = max(maxρ, fluxρ(u[i,:],JacF))
+      maxρ = max(maxρ, fluxρ(u[i,:],f))
     end
     maxρ
 end
@@ -51,11 +50,11 @@ end
   @unpack N,x,dx,bdtype = integrator.mesh
 end
 @def fv_diffdeterministicpreamble begin
-  @unpack u0,Flux,DiffMat,Jf,CFL,M,TimeAlgorithm,tend = integrator
+  @unpack u0,Flux,DiffMat,CFL,M,TimeAlgorithm,tend = integrator
 end
 
 @def fv_deterministicpreamble begin
-  @unpack u0,Flux,Jf,CFL,M,TimeAlgorithm,tend = integrator
+  @unpack u0,Flux,CFL,M,TimeAlgorithm,tend = integrator
 end
 
 @def fv_generalpreamble begin
@@ -71,10 +70,10 @@ end
 
 @def fv_timeloop begin
   #First dt
-  dt = cdt(u0, CFL, dx, Jf)
+  dt = cdt(u0, CFL, dx, Flux)
   @fv_setup_time_integrator
   @inbounds for i in timeIntegrator
-    dt = cdt(timeIntegrator.u, CFL, dx, Jf)
+    dt = cdt(timeIntegrator.u, CFL, dx, Flux)
     set_proposed_dt!(timeIntegrator, dt)
   end
   @fv_postamble
@@ -82,35 +81,11 @@ end
 
 @def fv_difftimeloop begin
   #First dt
-  dt = cdt(u0, CFL, dx, Jf, DiffMat)
+  dt = cdt(u0, CFL, dx, Flux, DiffMat)
   @fv_setup_time_integrator
   @inbounds for i in timeIntegrator
-    dt = cdt(timeIntegrator.u, CFL, dx, Jf, DiffMat)
+    dt = cdt(timeIntegrator.u, CFL, dx, Flux, DiffMat)
     set_proposed_dt!(timeIntegrator, dt)
-  end
-  @fv_postamble
-end
-
-@def fv_common_time_loop begin
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
-end
-
-@def fv_common_diff_time_loop begin
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf, DiffMat)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
   end
   @fv_postamble
 end

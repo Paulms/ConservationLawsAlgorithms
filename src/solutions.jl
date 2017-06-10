@@ -17,3 +17,14 @@ function FVSolution(u::AbstractArray,t,prob,retcode,interp;dense=true)
 end
 (sol::FVSolution)(t,deriv::Type=Val{0};idxs=nothing) = sol.interp(t,idxs,deriv)
 (sol::FVSolution)(v,t,deriv::Type=Val{0};idxs=nothing) = sol.interp(v,t,idxs,deriv)
+
+function save_csv(sol::FVSolution, file_name::String; idx = -1)
+  if !endswith(file_name,".csv")
+    file_name = "$file_name.csv"
+  end
+  if idx == -1
+    writedlm(file_name, hcat(sol.prob.mesh.x,sol.u[end]), ',')
+  else
+    writedlm(file_name, hcat(sol.prob.mesh.x,sol.u[idx]), ',')
+  end
+end

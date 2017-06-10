@@ -1,6 +1,6 @@
 __precompile__()
 module ConservationLawsDiffEq
-  using DiffEqPDEBase
+  using DiffEqPDEBase,DiffEqBase
   using Reexport
   @reexport using OrdinaryDiffEq
 
@@ -9,7 +9,7 @@ module ConservationLawsDiffEq
   using RecipesBase
 
   # Interfaces
-  import DiffEqBase: solve, @def, LinearInterpolation
+  import DiffEqBase: solve, @def, has_jac, DEFAULT_LINSOLVE, LinearInterpolation
 
   #Solutions
   @compat abstract type AbstractFVSolution{T,N} <: AbstractTimeseriesSolution{T,N} end
