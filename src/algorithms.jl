@@ -147,7 +147,7 @@ end
     rhs!(du,u,N,M,dx,dt,bdtype)
   end
   prob = ODEProblem(semidiscretef, u0, (0.0,tend))
-  timeIntegrator = init(prob, SSPRK22();dt=dt, kwargs...)
+  timeIntegrator = init(prob, TimeAlgorithm;dt=dt, kwargs...)
 end
 
 # nflux must be capable of receiving vectors
