@@ -6,12 +6,12 @@
 immutable FVESJPAlgorithm <: AbstractFVAlgorithm
   Nflux :: Function
   Ndiff :: Function #Entropy stable 2 point flux
-  ϵ     :: Float64 # Extra diffusion
+  ϵ     :: Number # Extra diffusion
 end
 immutable FVESJPeAlgorithm <: AbstractFVAlgorithm
   Nflux :: Function
   Ndiff :: Function #Entropy stable 2 point flux
-  ϵ     :: Float64
+  ϵ     :: Number
   ve    :: Function #Entropy variable
 end
 function FVESJPAlgorithm(Nflux, Ndiff;ϵ=0.0,ve=nothing)

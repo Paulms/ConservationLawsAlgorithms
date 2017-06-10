@@ -5,13 +5,12 @@ const CFL = 0.1
 const Tend = 0.2
 const gr = 9.8
 
-function Jf(u::Vector)
+function f(::Type{Val{:jac}},u::Vector)
   h = u[1]
   q = u[2]
   F =[0.0 1.0;-q^2/h^2+gr*h 2*q/h]
   F
 end
-
 f(u::Vector) = [u[2];u[2]^2/u[1]+0.5*gr*u[1]^2]
 
 function u0_func(xx)
@@ -36,10 +35,15 @@ function Nflux(ϕl::Vector, ϕr::Vector)
 end
 ve(u::Vector) = [gr*u[1]-0.5*(u[2]/u[1])^2;u[2]/u[1]]
 
-N = 200
-mesh = Uniform1DFVMesh(N,-5.0,5.0,:PERIODIC)
-u0 = u0_func(mesh.x)
-prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
+function get_problem(N)
+  mesh = Uniform1DFVMesh(N,-5.0,5.0,:PERIODIC)
+  u0 = u0_func(mesh.x)
+  prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh)
+end
+#Compile
+prob = get_problem(10)
+#Run
+prob = get_problem(200)
 @time sol = solve(prob, FVKTAlgorithm();progress=true)
 @time sol2 = solve(prob, FVTecnoAlgorithm(Nflux;ve = ve, order=3);progress=true)
 @time sol3 = solve(prob, FVCompWENOAlgorithm();progress=true, TimeAlgorithm = SSPRK33())
