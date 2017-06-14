@@ -40,11 +40,11 @@ prob = get_problem(500)
 #writedlm("test_2_Tecnoreference.txt", [mesh.x sol2.u[end]], '\t')
 #reference = readdlm("test_2_ktreference.txt");
 
-get_L1_errors(sol, exact_sol; nvar = 1) #43.27793
-get_L1_errors(sol2, exact_sol; nvar = 1) #0.0790408
-get_L1_errors(sol3, exact_sol; nvar = 1) #0.0054492
-get_L1_errors(sol4, exact_sol; nvar = 1) #0.005577646
-get_L1_errors(sol5, exact_sol; nvar = 1) #0.005577646
+get_L1_errors(sol, exact_sol; nvar = 1) #0.086555
+get_L1_errors(sol2, exact_sol; nvar = 1) #1.58081746e-4
+get_L1_errors(sol3, exact_sol; nvar = 1) #1.08984086e-5
+get_L1_errors(sol4, exact_sol; nvar = 1) #1.11552929e-5
+get_L1_errors(sol5, exact_sol; nvar = 1) #1.11552929e-5
 #Plot
 using Plots
 plot(sol, tidx=1, vars=1, lab="yo",line=(:dot,2))
