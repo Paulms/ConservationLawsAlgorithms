@@ -97,7 +97,7 @@ function FV_solve{tType,uType,tAlgType,F}(integrator::FVIntegrator{FVTecnoAlgori
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
   @unpack order,Nflux,ve = integrator.alg
-
+  update_dt = cdt
   function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     #SEt ghost Cells
     @tecno_order_header
