@@ -5,7 +5,7 @@
 # and mechanics, 2013
 
 include("./../ConservationLawsDiffEq.jl")
-using ConservationLawsDiffEq
+using .ConservationLawsDiffEq
 
 # Parameters:
 const CFL = 0.25
@@ -17,7 +17,7 @@ const CC = e/7
 const κ = 1e-6
 const L = 0.03
 
-function Jf(ϕ::Vector)
+function f(::Type{Val{:jac}}, ϕ::Vector)
   M = size(ϕ,1)
   F = zeros(M,M)
   Vϕ = VV(sum(ϕ))
@@ -36,10 +36,10 @@ VV(ϕ::Number) = (ϕ < ϕc) ? 1.0 : 1.0-ϕ
 VP(ϕ::Number) = (ϕ < ϕc) ? 0.0 : -1.0
 
 function BB(ϕ::AbstractArray)
+  M = size(ϕ,1)
   if (sum(ϕ) < ϕc)
-    0.0
+    zeros(M,M)
   else
-    M = size(ϕ,1)
     B = β(sum(ϕ))*eye(M)
     B
   end
@@ -54,22 +54,31 @@ function u0_func(xx)
   return uinit
 end
 
-N = 100
-mesh = Uniform1DFVMesh(N,0.0,10.0,:PERIODIC)
-u0 = u0_func(mesh.x)
-prob = ConservationLawsWithDiffusionProblem(u0,f,BB,CFL,Tend,mesh;Jf=Jf)
-@time sol = solve(prob, FVKTAlgorithm();progressbar=true)
-@time sol2 = solve(prob, LI_IMEX_RK_Algorithm();progressbar=true)
+function get_problem(N)
+  mesh = Uniform1DFVMesh(N,0.0,10.0,:PERIODIC)
+  u0 = u0_func(mesh.x)
+  ConservationLawsWithDiffusionProblem(u0,f,BB,CFL,Tend,mesh)
+end
+#Compile
+prob = get_problem(10)
+#Run
+prob = get_problem(100)
+@time sol = solve(prob, FVSKTAlgorithm();progress=true,saveat=0.01)
+@time sol2 = solve(prob, LI_IMEX_RK_Algorithm();progress=true,saveat=0.01)
+@time sol3 = solve(prob, FVCUAlgorithm();progress=true,saveat=0.01)
 
 #Plot
 using(Plots)
+pyplot()
 #Plots.scalefontsizes(1.5)
-plot(sol.prob.mesh.x, sol.u[1], line=(:dot,2), ylab="u", xlab = "x")
+plot(sol, tidx=1, line=(:dot,2), ylab="u", xlab = "x")
 plot!(sol.prob.mesh.x, [sum(sol.u[1][i,:]) for i=1:sol.prob.mesh.N],lab="u")
-plot(sol.prob.mesh.x, sol.u[end], line=(:dot,2), ylab="u", xlab = "x")
+plot(sol, line=(:dot,2), ylab="u", xlab = "x")
 plot!(sol.prob.mesh.x, [sum(sol.u[end][i,:]) for i=1:sol.prob.mesh.N],line=(2),lab="u KT")
 #savefig("T4KTN500T02.png")
 
-plot(sol2.prob.mesh.x, sol2.u[1], line=(:dot,2), ylab="u", xlab = "x")
-plot(sol2.prob.mesh.x, sol2.u[end], line=(:dot,2), ylab="u", xlab = "x")
-plot!(sol2.prob.mesh.x, [sum(sol2.u[end][i,:]) for i=1:N],lab="u IMEX")
+plot(sol2, line=(:dot,2), ylab="u", xlab = "x")
+plot!(sol2.prob.mesh.x, [sum(sol2.u[end][i,:]) for i=1:sol2.prob.mesh.N],lab="u IMEX")
+
+plot(sol3, line=(:dot,2), ylab="u", xlab = "x")
+plot!(sol3.prob.mesh.x, [sum(sol3.u[end][i,:]) for i=1:sol3.prob.mesh.N],lab="u CU")

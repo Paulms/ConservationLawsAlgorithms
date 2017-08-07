@@ -10,13 +10,14 @@ immutable LaxWendroff2sAlgorithm <: AbstractFVAlgorithm end
 # |---|---|---|......|---|---|
 # 1   2   3   4 ... N-1  N  N+1
 
-function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{LaxWendroff2sAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G})
+function FV_solve{tType,uType,F}(integrator::FVIntegrator{LaxWendroff2sAlgorithm,
+  Uniform1DFVMesh,tType,uType,F})
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
   function nflux(ul, ur,dx,dt)
     Flux(0.5*(ul+ur)-dx/(2*dt)*(Flux(ur)-Flux(ul)))
   end
+  update_dt = cdt
   @fv_method_with_nflux_common
 end

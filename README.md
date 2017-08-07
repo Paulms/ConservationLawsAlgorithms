@@ -17,21 +17,20 @@ Where the numerical flux <a href="https://www.codecogs.com/eqnedit.php?latex=F_{
 
 An extra term **P** similar to **F** could be added to account for the Diffusion in the second case.
 
-The time integration of the semi discrete form is performed with Runge Kutta methods.
+The time integration of the semi discrete form is performed with methods like strong stability preserving Runge-Kutta.
 
 ## Features
-### Mesh:
-At the momento only Cartesian 1D uniform mesh available, using `FVMesh(N,a,b,boundary)` command. Where
+* Mesh: At the momento only Cartesian 1D uniform mesh available, using `FVMesh(N,a,b,boundary)` command. Where
 
 `N` = Number of cells
 
 `a,b` = start and end coordinates.
 
-`boundary` = boundary type (`:ZERO_FLUX` (default), `:PERIODIC`)
+`boundary` = boundary type (:ZERO_FLUX (default), :PERIODIC)
 
 * Problem types: System of Conservation Laws without (`ConservationLawsProblem`) and with diffusion term (`ConservationLawsWithDiffusionProblem`).
 
-### Algorithms
+## Algorithms
 
 * Lax-Friedrichs method (`LaxFriedrichsAlgorithm()`), Ritchmeyer Two-step Lax-Wendroff Method (`LaxWendroff2sAlgorithm()`)
 
@@ -41,31 +40,32 @@ R. LeVeque. Finite Volume Methods for Hyperbolic Problems.Cambridge University P
 
 U. Fjordholm, S. Mishra, E. Tadmor, *Arbitrarly high-order accurate entropy stable essentially nonoscillatory schemes for systems of conservation laws*. 2012. SIAM. vol. 50. No 2. pp. 544-573
 
-* High-Resolution Central Schemes (`FVKTAlgorithm()`)
+* High-Resolution Central Schemes (`FVSKTAlgorithm()`)
 
 Kurganov, Tadmor, *New High-Resolution Central Schemes for Nonlinear Conservation Laws and Convection–Diffusion Equations*, Journal of Computational Physics, Vol 160, issue 1, 1 May 2000, Pages 241-282
 
-* Component Wise Weighted Essentially Non-Oscilaroty (WENO-LF) (`FVCompWENOAlgorithm(;order)`)
+* Second-Order upwind central scheme (`FVCUAlgorithm`)
+
+Kurganov A., Noelle S., Petrova G., Semidiscrete Central-Upwind schemes for hyperbolic Conservation Laws and Hamilton-Jacobi Equations. SIAM. Sci Comput, Vol 23, No 3m pp 707-740. 2001
+
+* Dissipation Reduced Central upwind Scheme: Second-Order (`FVDRCUAlgorithm`)
+
+Kurganov A., Lin C., On the reduction of Numerical Dissipation in Central-Upwind # Schemes, Commun. Comput. Phys. Vol 2. No. 1, pp 141-163, Feb 2007.
+
+
+* Component Wise Weighted Essentially Non-Oscilaroty (WENO-LF)
 
 C.-W. Shu, *High order weighted essentially non-oscillatory schemes for convection dominated problems*, SIAM Review, 51:82-126, (2009).
 
-* Component Wise Mapped WENO Scheme (`FVCompMWENOAlgorithm(;order)`)
+* Component Wise Mapped WENO
 
 A. Henrick, T. Aslam, J. Powers, *Mapped weighted essentially non-oscillatory schemes: Achiving optimal order near critical points*. Journal of Computational Physics. Vol 207. 2005. Pages 542-567
 
-* Characteristic Wise WENO (Spectral) Scheme (`FVSpecMWENOAlgorithm(;order)`)
+* Linearly implicit IMEX Runge-Kutta schemes (`LI_IMEX_RK_Algorithm(;scheme, linsolve)`)
 
-R. Bürger, R. Donat, P. Mulet, C. Vega, *On the implementation of WENO schemes for a class of polydisperse sedimentation models*. Journal of Computational Physics, Volume 230, Issue 6, 20 March 2011, Pages 2322-2344
+## Time integration methods:
 
-* Linearly implicit IMEX Runge-Kutta schemes (`LI_IMEX_RK_Algorithm(;scheme, solver)`)
-
-(See Time integration methods for RK options (`scheme`), Flux reconstruction uses Comp WENO5, linear solver can be: internal solver (default), `:CG` Conjugate gradient, `:GMRES`)
-
-S. Boscarino, R. Bürger, P. Mulet, G. Russo, L. Villada, *Linearly implicit IMEX Runge Kutta methods for a class of degenerate convection difussion problems*, SIAM J. Sci. Comput., 37(2), B305–B331
-
-### Time integration methods:
-
-At the moment available methods are: Forward Euler (`:FORWARD_EULER`), Strong Stability Preserving Runge Kutta 2 (`:SSPRK22`, default), `:SSPRK33`, `:SSPRK104`, Runge-Kutta 4 (`:RK4`).
+At the moment available methods are: Forward Euler (`FORWARD_EULER`), Strong Stability Preserving Runge Kutta 2 (`SSPRK22`, default), `SSPRK33`, `SSPRK104`, Runge-Kutta 4 (`RK4`).
 
 For IMEX Scheme RK methods: H-CN(2,2,2) `:H_CN_222`, H-DIRK2(2,2,2) `:H_DIRK2_222`, H-LDIRK2(2,2,2) `:H_LDIRK2_222`, H-LDIRK3(2,2,2) `:H_LDIRK3_222`, SSP-LDIRK(3,3,2) `:SSP_LDIRK_332`. For more information see:
 
@@ -115,8 +115,8 @@ u0 = u0_func(mesh.x)
 
 #Setup problem:
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
-#Solve problem using Kurganov-Tadmor scheme and Strong Stability Preserving RK33
-@time sol = solve(prob, FVKTAlgorithm();progressbar=true, TimeIntegrator = :SSPRK33)
+#Solve problem using Kurganov-Tadmor scheme
+@time sol = solve(prob, FVSKTAlgorithm();progress=true, TimeIntegrator = :SSPRK33)
 
 #Plot
 using Plots

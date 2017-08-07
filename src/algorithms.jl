@@ -1,33 +1,32 @@
-function cdt(u::Matrix, CFL, dx,JacF)
-  maxρ = 0
+function cdt{T}(u::AbstractArray{T,2},integrator::FVDiffIntegrator)
+  maxρ = zero(T)
+  maxρB = zero(T)
   N = size(u,1)
   for i in 1:N
-    maxρ = max(maxρ, fluxρ(u[i,:],JacF))
+    maxρ = max(maxρ, fluxρ(u[i,:],integrator.Flux))
+    maxρB = max(maxρB, maximum(abs,eigvals(integrator.DiffMat(u[i,:]))))
   end
-  CFL/(1/dx*maxρ)
+  integrator.CFL/(1/integrator.mesh.dx*maxρ+1/(2*integrator.mesh.dx^2)*maxρB)
 end
 
-function cdt(u::AbstractArray, CFL, dx, JacF, BB)
-  maxρ = 0
-  maxρB = 0
+function cdt{T}(u::AbstractArray{T,2},integrator::FVIntegrator)
+  maxρ = zero(T)
   N = size(u,1)
   for i in 1:N
-    maxρ = max(maxρ, fluxρ(u[i,:],JacF))
-    maxρB = max(maxρB, maximum(abs(eigvals(BB(u[i,:])))))
+    maxρ = max(maxρ, fluxρ(u[i,:],integrator.Flux))
   end
-  CFL/(1/dx*maxρ+1/(2*dx^2)*maxρB)
+  integrator.CFL/(1/integrator.mesh.dx*maxρ)
 end
 
-@inline function fluxρ(uj::Vector,JacF)
-  #maximum(abs(eigvals(Jf(uj))))
-  maximum(abs(eigvals(JacF(uj))))
+@inline function fluxρ(uj::Vector,f)
+  maximum(abs,eigvals(f(Val{:jac}, uj)))
 end
 
-@inline function maxfluxρ(u::AbstractArray,JacF)
+@inline function maxfluxρ(u::AbstractArray,f)
     maxρ = 0
     N = size(u,1)
     for i in 1:N
-      maxρ = max(maxρ, fluxρ(u[i,:],JacF))
+      maxρ = max(maxρ, fluxρ(u[i,:],f))
     end
     maxρ
 end
@@ -38,7 +37,7 @@ function minmod(a,b,c)
   elseif (a < 0 && b < 0 && c < 0)
     max(a,b,c)
   else
-    zero(a)
+    zero(promote_type(typeof(a),typeof(b),typeof(c)))
   end
 end
 
@@ -51,18 +50,18 @@ end
   @unpack N,x,dx,bdtype = integrator.mesh
 end
 @def fv_diffdeterministicpreamble begin
-  @unpack u,Flux,DiffMat,Jf,CFL,t,M,numiters,typeTIntegration,tend,
-  save_everystep,ts,timeseries,timeseries_steps,progressbar, progressbar_name = integrator
+  @unpack u,Flux,DiffMat,CFL,t,M,numiters,typeTIntegration,tend,
+  save_everystep,ts,timeseries,timeseries_steps,progress, progressbar_name = integrator
 end
 
 @def fv_deterministicpreamble begin
-  @unpack u,Flux,Jf,CFL,t,M,numiters,typeTIntegration,tend,
-  save_everystep,ts,timeseries,timeseries_steps,progressbar,
+  @unpack u,Flux,CFL,t,M,numiters,typeTIntegration,tend,
+  save_everystep,ts,timeseries,timeseries_steps,progress,
   progressbar_name = integrator
 end
 
 @def fv_generalpreamble begin
-  progressbar && (prog = Juno.ProgressBar(name=progressbar_name))
+  progress && (prog = Juno.ProgressBar(name=progressbar_name))
   percentage = 0
   limit = tend/10.0
   timeStep = tend/timeseries_steps
@@ -70,7 +69,7 @@ end
 end
 
 @def fv_postamble begin
-  progressbar && Juno.done(prog)
+  progress && Juno.done(prog)
   if ts[end] != t
      push!(timeseries,copy(u))
      push!(ts,t)
@@ -84,7 +83,7 @@ end
      push!(ts,t)
      timeLimit = timeLimit + timeStep
   end
-  if progressbar && t>limit
+  if progress && t>limit
     percentage = percentage + 10
     limit = limit +tend/10.0
     Juno.msg(prog,"dt="*string(dt))
@@ -99,19 +98,7 @@ end
   uold = similar(u)
   rhs = zeros(u)
   @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf)
-    t += dt
-    @fv_deterministicloop
-    @fv_footer
-  end
-  @fv_postamble
-end
-
-@def fv_common_diff_time_loop begin
-  uold = similar(u)
-  rhs = zeros(u)
-  @inbounds for i=1:numiters
-    dt = cdt(u, CFL, dx, Jf, DiffMat)
+    dt = cdt(u, integrator)
     t += dt
     @fv_deterministicloop
     @fv_footer

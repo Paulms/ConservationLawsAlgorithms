@@ -1,17 +1,17 @@
-function solve{MeshType,F,F2,F3,F4,F5}(
-  prob::ConservationLawsProblem{MeshType,F,F2,F3,F4,F5},
+function solve{MeshType,F,F3,F4,F5}(
+  prob::ConservationLawsProblem{MeshType,F,F3,F4,F5},
   alg::AbstractFVAlgorithm;
   timeseries_steps::Int = 100,
   save_everystep::Bool = false,
   iterations=100000000,
   TimeIntegrator=:SSPRK22,
-  progressbar::Bool=false,progressbar_name="FV",kwargs...)
+  progress::Bool=false,progressbar_name="FV",kwargs...)
 
   #Unroll some important constants
-  @unpack u0,f,Jf,CFL,tend,numvars,mesh = prob
-
-  if Jf == nothing
-    Jf = x -> ForwardDiff.jacobian(f,x)
+  @unpack u0,f,CFL,tspan,numvars,mesh = prob
+  tend = tspan[end]
+  if !has_jac(f)
+    f(::Type{Val{:jac}},x) = x -> ForwardDiff.jacobian(f,x)
   end
 
   typeTIntegration = TimeIntegrator
@@ -28,27 +28,27 @@ function solve{MeshType,F,F2,F3,F4,F5}(
 
   #Equation Loop
   u,timeseries,ts=FV_solve(FVIntegrator{typeof(alg),typeof(prob.mesh),typeof(tend),typeof(u),
-  typeof(f),typeof(Jf)}(alg,prob.mesh,u,f,Jf,CFL,t,
+  typeof(f)}(alg,prob.mesh,u,f,CFL,t,
   numvars,numiters,typeTIntegration,tend,save_everystep,ts,timeseries,timeseries_steps,
-    progressbar,progressbar_name))
+    progress,progressbar_name))
 
   return(FVSolution(timeseries,ts,prob))
 end
 
-function solve{MeshType,F,F2,F3,F4,F5,F6}(
-  prob::ConservationLawsWithDiffusionProblem{MeshType,F,F2,F3,F4,F5,F6},
+function solve{MeshType,F,F3,F4,F5,F6}(
+  prob::ConservationLawsWithDiffusionProblem{MeshType,F,F3,F4,F5,F6},
   alg::AbstractFVAlgorithm;
   timeseries_steps::Int = 100,
   save_everystep::Bool = false,
   iterations=100000000,
   TimeIntegrator=:SSPRK22,
-  progressbar::Bool=false,progressbar_name="FV",kwargs...)
+  progress::Bool=false,progressbar_name="FV",kwargs...)
 
   #Unroll some important constants
-  @unpack u0,f,Jf,CFL,tend,numvars,mesh,DiffMat = prob
-
-  if Jf == nothing
-    Jf = x -> ForwardDiff.jacobian(f,x)
+  @unpack u0,f,CFL,tspan,numvars,mesh,DiffMat = prob
+  tend = tspan[end]
+  if !has_jac(f)
+    f(::Type{Val{:jac}},x) = x -> ForwardDiff.jacobian(f,x)
   end
 
   typeTIntegration = TimeIntegrator
@@ -65,9 +65,9 @@ function solve{MeshType,F,F2,F3,F4,F5,F6}(
 
   #Equation Loop
   u,timeseries,ts=FV_solve(FVDiffIntegrator{typeof(alg),typeof(prob.mesh),typeof(tend),typeof(u),
-  typeof(f),typeof(Jf),typeof(DiffMat)}(alg,prob.mesh,u,f,DiffMat,Jf,CFL,t,
+  typeof(f),typeof(DiffMat)}(alg,prob.mesh,u,f,DiffMat,CFL,t,
   numvars,numiters,typeTIntegration,tend,save_everystep,ts,timeseries,timeseries_steps,
-    progressbar,progressbar_name))
+    progress,progressbar_name))
 
   return(FVSolution(timeseries,ts,prob))
 end

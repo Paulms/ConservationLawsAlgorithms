@@ -1,9 +1,8 @@
-immutable FVIntegrator{T1,mType,tType,uType,F,G}
+immutable FVIntegrator{T1,mType,tType,uType,F}
   alg::T1
   mesh::mType
   u::uType
   Flux::F
-  Jf :: G
   CFL :: Real
   t::tType
   M::Int
@@ -14,17 +13,16 @@ immutable FVIntegrator{T1,mType,tType,uType,F,G}
   ts::Vector{tType}
   timeseries::Vector{uType}
   timeseries_steps::Int
-  progressbar::Bool
+  progress::Bool
   progressbar_name::String
 end
 
-immutable FVDiffIntegrator{T1,mType,tType,uType,F,G,B}
+immutable FVDiffIntegrator{T1,mType,tType,uType,F,B}
   alg::T1
   mesh::mType
   u::uType
   Flux::F
   DiffMat::B
-  Jf :: G
   CFL :: Real
   t::tType
   M::Int
@@ -35,6 +33,6 @@ immutable FVDiffIntegrator{T1,mType,tType,uType,F,G,B}
   ts::Vector{tType}
   timeseries::Vector{uType}
   timeseries_steps::Int
-  progressbar::Bool
+  progress::Bool
   progressbar_name::String
 end

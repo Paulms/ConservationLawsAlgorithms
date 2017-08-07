@@ -62,7 +62,7 @@ end
   αl = fluxρ(uu[0,:])
   for j = 1:N
     αr = fluxρ(uu[j,:])
-    αk = max(αl, αr)
+    αk[j] = max(αl, αr)
     αl = αr
   end
   fminus = zeros(uu); fplus = zeros(uu)
@@ -90,7 +90,7 @@ end
   uold = similar(u)
   rhs = zeros(u)
   @inbounds for i=1:numiters
-    α = maxfluxρ(u,Jf)
+    α = maxfluxρ(u,Flux)
     dt = CFL*dx/α
     t += dt
     @fv_deterministicloop
@@ -99,8 +99,8 @@ end
   @fv_postamble
 end
 
-function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVCompWENOAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G})
+function FV_solve{tType,uType,F}(integrator::FVIntegrator{FVCompWENOAlgorithm,
+  Uniform1DFVMesh,tType,uType,F})
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
@@ -140,8 +140,8 @@ end
   end
 end
 
-function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVCompMWENOAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G})
+function FV_solve{tType,uType,F}(integrator::FVIntegrator{FVCompMWENOAlgorithm,
+  Uniform1DFVMesh,tType,uType,F})
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
@@ -172,16 +172,16 @@ end
 @def specmweno_rhs_header begin
     save_case = zeros(N+1,M)
     αj = zeros(N+1,M)
-    RMats = Vector{typeof(Jf(uu[1,:]))}(0)
-    LMats = Vector{typeof(Jf(uu[1,:]))}(0)
+    RMats = Vector{typeof(Flux(Val{:jac},uu[1,:]))}(0)
+    LMats = Vector{typeof(Flux(Val{:jac},uu[1,:]))}(0)
     gk = zeros(uu)
     for j =1:(N+1)
       ul = uu[j-1,:]; ur = uu[j,:]
-      MatJf = Jf(0.5*(ul+ur))
+      MatJf = Flux(Val{:jac},0.5*(ul+ur))
       Rj = eigvecs(MatJf);  Lj = inv(Rj)
       push!(RMats,Rj); push!(LMats,Lj)
-      λl = eigvals(Jf(ul)); λr = eigvals(Jf(ur))
-      αj[j,:] = max.(abs(λl),abs(λr))
+      λl = eigvals(Flux(Val{:jac},ul)); λr = eigvals(Flux(Val{:jac},ur))
+      αj[j,:] = maximum(abs,[λl λr],2)
       if j < N+1
         gk[j,:] = Flux(uu[j,:])
       end
@@ -221,8 +221,8 @@ end
   end
 end
 
-function FV_solve{tType,uType,F,G}(integrator::FVIntegrator{FVSpecMWENOAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G})
+function FV_solve{tType,uType,F}(integrator::FVIntegrator{FVSpecMWENOAlgorithm,
+  Uniform1DFVMesh,tType,uType,F})
   @fv_deterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble

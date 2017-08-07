@@ -27,16 +27,15 @@ end
 # |---|---|---|......|---|---|
 # 1   2   3   4 ... N-1  N  N+1
 
-function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVESJPAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G,B})
+function FV_solve{tType,uType,F,B}(integrator::FVDiffIntegrator{FVESJPAlgorithm,
+  Uniform1DFVMesh,tType,uType,F,B})
   @fv_diffdeterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
   @unpack Nflux,Ndiff,ϵ = integrator.alg
-
+  update_dt = cdt
   function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     #SEt ghost Cells
-    ngc = 1
     @boundary_header
     # Numerical Fluxes
     hh = zeros(N+1,M)
@@ -51,19 +50,18 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVESJPAlgorith
     @boundary_update
     @update_rhs
   end
-  @fv_common_diff_time_loop
+  @fv_common_time_loop
 end
 
-function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVESJPeAlgorithm,
-  Uniform1DFVMesh,tType,uType,F,G,B})
+function FV_solve{tType,uType,F,B}(integrator::FVDiffIntegrator{FVESJPeAlgorithm,
+  Uniform1DFVMesh,tType,uType,F,B})
   @fv_diffdeterministicpreamble
   @fv_uniform1Dmeshpreamble
   @fv_generalpreamble
   @unpack Nflux,Ndiff,ϵ,ve = integrator.alg
-
+  update_dt = cdt
   function rhs!(rhs, uold, N, M, dx, dt, bdtype)
     #SEt ghost Cells
-    ngc = 1
     @boundary_header
     # Numerical Fluxes
     hh = zeros(N+1,M)
@@ -79,5 +77,5 @@ function FV_solve{tType,uType,F,G,B}(integrator::FVDiffIntegrator{FVESJPeAlgorit
     @boundary_update
     @update_rhs
   end
-  @fv_common_diff_time_loop
+  @fv_common_time_loop
 end

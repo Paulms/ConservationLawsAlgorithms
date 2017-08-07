@@ -7,7 +7,7 @@ module ConservationLawsDiffEq
   using RecipesBase
 
   # Interfaces
-  import DiffEqBase: solve, @def
+  import DiffEqBase: solve, @def, has_jac, LinSolveFactorize, LinearInterpolation
 
   #Solutions
   @compat abstract type AbstractFVSolution{T,N} <: AbstractTimeseriesSolution{T,N} end
@@ -16,7 +16,7 @@ module ConservationLawsDiffEq
   @compat abstract type AbstractUniformFVMesh <: AbstractFVMesh end
   # Problems
   @compat abstract type PDEProblem <: DEProblem end
-  @compat abstract type AbstractConservationLawProblem{MeshType} <: PDEProblem end
+  @compat abstract type AbstractConservationLawProblem{islinear,isstochastic,MeshType} <: PDEProblem end
   # algorithms
   @compat abstract type PDEAlgorithm <: DEAlgorithm end
   @compat abstract type AbstractFVAlgorithm <: PDEAlgorithm end
@@ -40,13 +40,19 @@ module ConservationLawsDiffEq
   include("LI_IMEXRK_Schemes.jl")
   include("Lax_Friedrichs_scheme.jl")
   include("Lax_Wendroff2s_scheme.jl")
+  include("CU_scheme.jl")
+  include("SKT_scheme.jl")
+  include("DRCU_scheme.jl")
 
   export solve
   export Uniform1DFVMesh
+  export FVSolution, save_csv
   export ConservationLawsProblem, ConservationLawsWithDiffusionProblem
   export FVKTAlgorithm, FVTecnoAlgorithm, FVESJPAlgorithm
   export FVCompWENOAlgorithm, FVCompMWENOAlgorithm, FVSpecMWENOAlgorithm
   export RKTable, LI_IMEX_RK_Algorithm
   export LaxFriedrichsAlgorithm, LaxWendroff2sAlgorithm
+  export LaxFriedrichsDiffAlgorithm, LocalLaxFriedrichsAlgorithm
+  export FVCUAlgorithm, FVSKTAlgorithm, FVDRCUAlgorithm
   export get_L1_errors, minmod
 end
