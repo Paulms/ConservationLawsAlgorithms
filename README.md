@@ -41,9 +41,17 @@ R. LeVeque. Finite Volume Methods for Hyperbolic Problems.Cambridge University P
 
 U. Fjordholm, S. Mishra, E. Tadmor, *Arbitrarly high-order accurate entropy stable essentially nonoscillatory schemes for systems of conservation laws*. 2012. SIAM. vol. 50. No 2. pp. 544-573
 
-* High-Resolution Central Schemes (`FVKTAlgorithm()`)
+* High-Resolution Central Schemes (`FVSKTAlgorithm()`)
 
 Kurganov, Tadmor, *New High-Resolution Central Schemes for Nonlinear Conservation Laws and Convection–Diffusion Equations*, Journal of Computational Physics, Vol 160, issue 1, 1 May 2000, Pages 241-282
+
+* Second-Order upwind central scheme (`FVCUAlgorithm`)
+
+Kurganov A., Noelle S., Petrova G., Semidiscrete Central-Upwind schemes for hyperbolic Conservation Laws and Hamilton-Jacobi Equations. SIAM. Sci Comput, Vol 23, No 3m pp 707-740. 2001
+
+* Dissipation Reduced Central upwind Scheme: Second-Order (`FVDRCUAlgorithm`)
+
+Kurganov A., Lin C., On the reduction of Numerical Dissipation in Central-Upwind # Schemes, Commun. Comput. Phys. Vol 2. No. 1, pp 141-163, Feb 2007.
 
 * Component Wise Weighted Essentially Non-Oscilaroty (WENO-LF) (`FVCompWENOAlgorithm(;order)`)
 
@@ -120,7 +128,7 @@ u0 = u0_func(mesh.x)
 prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh)
 
 #Solve problem using Kurganov-Tadmor scheme and Strong Stability Preserving RK33
-@time sol = solve(prob, FVKTAlgorithm();progress=true, TimeIntegrator = SSPRK33())
+@time sol = solve(prob, FVSKTAlgorithm();progress=true, TimeIntegrator = SSPRK33())
 
 #Plot
 using Plots

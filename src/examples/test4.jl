@@ -63,11 +63,13 @@ end
 prob = get_problem(10)
 #Run
 prob = get_problem(100)
-@time sol = solve(prob, FVKTAlgorithm();progress=true,saveat=0.01)
+@time sol = solve(prob, FVSKTAlgorithm();progress=true,saveat=0.01)
 @time sol2 = solve(prob, LI_IMEX_RK_Algorithm();progress=true,saveat=0.01)
+@time sol3 = solve(prob, FVCUAlgorithm();progress=true,saveat=0.01)
 
 #Plot
 using(Plots)
+pyplot()
 #Plots.scalefontsizes(1.5)
 plot(sol, tidx=1, line=(:dot,2), ylab="u", xlab = "x")
 plot!(sol.prob.mesh.x, [sum(sol.u[1][i,:]) for i=1:sol.prob.mesh.N],lab="u")
@@ -76,4 +78,7 @@ plot!(sol.prob.mesh.x, [sum(sol.u[end][i,:]) for i=1:sol.prob.mesh.N],line=(2),l
 #savefig("T4KTN500T02.png")
 
 plot(sol2, line=(:dot,2), ylab="u", xlab = "x")
-plot!(sol2.prob.mesh.x, [sum(sol2.u[end][i,:]) for i=1:sol.prob.mesh.N],lab="u IMEX")
+plot!(sol2.prob.mesh.x, [sum(sol2.u[end][i,:]) for i=1:sol2.prob.mesh.N],lab="u IMEX")
+
+plot(sol3, line=(:dot,2), ylab="u", xlab = "x")
+plot!(sol3.prob.mesh.x, [sum(sol3.u[end][i,:]) for i=1:sol3.prob.mesh.N],lab="u CU")
