@@ -77,12 +77,14 @@ For IMEX Scheme RK methods: H-CN(2,2,2) `:H_CN_222`, H-DIRK2(2,2,2) `:H_DIRK2_22
 Hyperbolic Shallow Water system with flat bottom:
 
 ```julia
+using ConservationLawsDiffEq
+
 const CFL = 0.1
 const Tend = 0.2
 const gr = 9.8
 
-#Optional Jacobian of Flux
-function Jf(u::Vector)
+#Define Optional Jacobian of Flux
+function f(::Type{Val{:jac}},u::Vector)
   h = u[1]
   q = u[2]
   F =[0.0 1.0;-q^2/h^2+gr*h 2*q/h]
@@ -92,7 +94,7 @@ end
 #Flux function:
 f(u::Vector) = [u[2];u[2]^2/u[1]+0.5*gr*u[1]^2]
 
-#Initial condition
+#Initial Condition:
 function u0_func(xx)
   N = size(xx,1)
   uinit = zeros(N, 2)
@@ -114,15 +116,15 @@ mesh = Uniform1DFVMesh(N,-5.0,5.0,:PERIODIC)
 u0 = u0_func(mesh.x)
 
 #Setup problem:
-prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh;Jf=Jf)
-#Solve problem using Kurganov-Tadmor scheme
+prob = ConservationLawsProblem(u0,f,CFL,Tend,mesh)
+
+#Solve problem using Kurganov-Tadmor scheme and Strong Stability Preserving RK33
 @time sol = solve(prob, FVSKTAlgorithm();progress=true, TimeIntegrator = :SSPRK33)
 
 #Plot
 using Plots
-plot(sol.prob.mesh.x, sol.u[1][:,1], lab="ho",line=(:dot,2))
-plot!(sol.prob.mesh.x, sol.u[end][:,1],lab="KT h")
+plot(sol, tidx=1, vars=1, lab="ho",line=(:dot,2))
+plot!(sol, vars=1,lab="KT h")
 ```
-
 # Disclamer
 ** developed for personal use, some of the schemes have not been tested enough!!!**

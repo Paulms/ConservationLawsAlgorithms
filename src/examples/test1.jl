@@ -49,10 +49,6 @@ prob = get_problem(200)
 @time sol3 = solve(prob, FVCompWENOAlgorithm();progress=true, TimeIntegrator = :SSPRK33)
 @time sol4 = solve(prob, FVCompMWENOAlgorithm();progress=true, TimeIntegrator = :SSPRK33)
 @time sol5 = solve(prob, FVSpecMWENOAlgorithm();progress=true, TimeIntegrator = :SSPRK33)
-#writedlm("test_1_ktreference.txt", [mesh.x sol.u[end]], '\t')
-#writedlm("test_1_Tecnoreference.txt", [mesh.x sol2.u[end]], '\t')
-#reference = readdlm("test_1_ktreference.txt");
-#sum(abs(sol.u[end] - reference[:,2:end]))
 
 #Plot
 using Plots
