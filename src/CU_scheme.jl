@@ -53,7 +53,7 @@ end
     end
   end
   if bdtype == :ZERO_FLUX
-    hh[1,:] = 0.0_dp; hh[N+1,:] = 0.0_dp
+    hh[1,:] = 0.0; hh[N+1,:] = 0.0
   end
 end
 
@@ -94,7 +94,7 @@ function FV_solve{tType,uType,tAlgType,F,B}(integrator::FVDiffIntegrator{FVCUAlg
       pp[j,:] = 0.5*(DiffMat(uu[j,:])+DiffMat(uu[j-1,:]))*∇u_ap[j,1:M]
     end
     if bdtype == :ZERO_FLUX
-      pp[1,:] = 0.0_dp; pp[N+1,:] = 0.0_dp
+      pp[1,:] = 0.0; pp[N+1,:] = 0.0
     end
     @boundary_update
     @update_rhs
