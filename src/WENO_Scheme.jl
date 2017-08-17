@@ -84,6 +84,9 @@ end
       hh[j+1,i] = sum(WENO_pm_rec(fminus[j-k+1:j+k+1,i],fplus[j-k:j+k,i],order; crj = crj))
     end
   end
+  if bdtype == :ZERO_FLUX
+    hh[1,:] = 0.0; hh[N+1,:] = 0.0
+end
 end
 
 @def weno_common_time_loop begin
@@ -138,6 +141,9 @@ end
       hh[j+1,i] = sum(MWENO_pm_rec(fminus[j-k+1:j+k+1,i],fplus[j-k:j+k,i],order; crj = crj))
     end
   end
+  if bdtype == :ZERO_FLUX
+    hh[1,:] = 0.0; hh[N+1,:] = 0.0
+end
 end
 
 function FV_solve{tType,uType,F}(integrator::FVIntegrator{FVCompMWENOAlgorithm,
@@ -218,6 +224,9 @@ end
       end
     end
     hh[j+1,:] = RMats[j+1]*hh[j+1,:]
+  end
+  if bdtype == :ZERO_FLUX
+    hh[1,:] = 0.0; hh[N+1,:] = 0.0
   end
 end
 
