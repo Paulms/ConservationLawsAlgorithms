@@ -43,6 +43,7 @@ module ConservationLawsDiffEq
   include("CU_scheme.jl")
   include("SKT_scheme.jl")
   include("DRCU_scheme.jl")
+  include("DRCU5_scheme.jl")
 
   export solve
   export Uniform1DFVMesh
@@ -54,5 +55,7 @@ module ConservationLawsDiffEq
   export LaxFriedrichsAlgorithm, LaxWendroff2sAlgorithm
   export LaxFriedrichsDiffAlgorithm, LocalLaxFriedrichsAlgorithm
   export FVCUAlgorithm, FVSKTAlgorithm, FVDRCUAlgorithm
+  export FVDRCU5Algorithm
+  export COMP_GLF_Diff_Algorithm
   export get_L1_errors, minmod
 end

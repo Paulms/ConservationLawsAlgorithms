@@ -35,8 +35,8 @@ end
   aa_plus = zeros(N+1)
   aa_minus = zeros(N+1)
   for j = 1:N+1
-    λm = sort(eigvals(Flux(Val{:jac}, uminus[j,:])))
-    λp = sort(eigvals(Flux(Val{:jac}, uplus[j,:])))
+    λm = sort(LAPACK.geev!('N','N',Flux(Val{:jac}, uminus[j,:]))[1])#eigvals(Flux(Val{:jac}, uminus[j,:]))
+    λp = sort(LAPACK.geev!('N','N',Flux(Val{:jac}, uplus[j,:]))[1])#eigvals(Flux(Val{:jac}, uplus[j,:]))
     aa_plus[j]=maximum((λm[end], λp[end],0))
     aa_minus[j]=minimum((λm[1], λp[1],0))
   end
@@ -45,7 +45,7 @@ end
   hh = zeros(N+1,M)
   for j = 1:(N+1)
     if abs(aa_plus[j]-aa_minus[j]) < 1e-8
-      hh[j,:] = 0.0
+      hh[j,:] = 0.5*(Flux(uminus[j,:])+Flux(uplus[j,:]))
     else
       flm = Flux(uminus[j,:])
       flp = Flux(uplus[j,:])

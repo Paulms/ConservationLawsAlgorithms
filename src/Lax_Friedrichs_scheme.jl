@@ -12,9 +12,21 @@ immutable LaxFriedrichsDiffAlgorithm <: AbstractFVAlgorithm
   ve    :: Function #Entropy variable
 end
 
+immutable COMP_GLF_Diff_Algorithm <: AbstractFVAlgorithm
+  αf :: Function #viscosity coefficient
+end
+
 function LaxFriedrichsDiffAlgorithm(Ndiff; ve = (u -> u))
     LaxFriedrichsDiffAlgorithm(Ndiff, ve)
 end
+
+function COMP_GLF_Diff_Algorithm(;αf = nothing)
+    if αf == nothing
+        αf = maxfluxρ
+    end
+    COMP_GLF_Diff_Algorithm(αf)
+end
+
 
 # Numerical Fluxes
 #   1   2   3          N-1  N
@@ -96,4 +108,55 @@ function FV_solve{tType,uType,F,B}(integrator::FVDiffIntegrator{LaxFriedrichsDif
     @update_rhs
   end
   @fv_common_time_loop
+end
+
+# Component Wise Global Lax-Friedrichs Scheme
+# Based on:
+# Raimund Bürger , Rosa Donat , Pep Mulet , Carlos A. Vega,
+# On the implementation of WENO schemes for a class of polydisperse sedimentation
+# models, Journal of Computational Physics, v.230 n.6, p.2322-2344,
+# March, 2011  [doi>10.1016/j.jcp.2010.12.019]
+function FV_solve{tType,uType,F,B}(integrator::FVDiffIntegrator{COMP_GLF_Diff_Algorithm,
+  Uniform1DFVMesh,tType,uType,F,B})
+  @fv_diffdeterministicpreamble
+  @fv_uniform1Dmeshpreamble
+  @fv_generalpreamble
+  @unpack αf = integrator.alg
+  crj = unif_crj(3) #eno weights for weno5
+  order = 5         #weno5
+  k = 2             #weno5
+  α = zero(eltype(uType))
+  function rhs!(rhs, uold, N, M, dx, dt, bdtype)
+    #SEt ghost Cells
+    @boundary_header
+    # Global Lax Friedrichs for flux splitting
+    @global_lax_flux
+    #WENO 5 reconstruction
+    @weno_rhs_header
+    # Diffusion
+    pp = zeros(N+1,M)
+    # limit slope
+    ∇u = zeros(uu); Θ = 1.0
+    for i = 1:M
+      for j = 1:N
+        ∇u[j,i] = minmod(Θ*(uu[j,i]-uu[j-1,i]),(uu[j+1,i]-uu[j-1,i])/2,Θ*(uu[j+1,i]-uu[j,i]))
+      end
+    end
+    for j = 1:N+1
+      #pp[j,:] = 1/dx*(0.5*(DiffMat(uu[j,:])+DiffMat(uu[j-1,:]))*(uu[j,:]-uu[j-1,:]))
+      pp[j,:] = 0.5*(DiffMat(uu[j,:])+DiffMat(uu[j-1,:]))*∇u[j,1:M]/dx
+    end
+    @boundary_update
+    @update_rhs
+  end
+  uold = similar(u)
+  rhs = zeros(u)
+  @inbounds for i=1:numiters
+    α = αf(u,Flux)
+    dt = integrator.CFL*integrator.mesh.dx/α
+    t += dt
+    @fv_deterministicloop
+    @fv_footer
+  end
+  @fv_postamble
 end
